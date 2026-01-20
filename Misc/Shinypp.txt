@@ -1,0 +1,316 @@
+/* =============
+    User Facing
+:=============== */
+
+// -- Mandatory ----------------------- //
+// these you must set manually for the code
+// to work
+
+var PositionCallback = null
+var UIPositionCallback = null
+
+
+
+// -- Configuration ------------------- //
+
+// these can be configured (carefully) to
+// change behavior
+
+var canPerform = true
+// completely pauses all logic
+// (apart from moving the canvases)
+
+var conditions = []
+// all conditions, remove or add at will
+// ├┬→ ShinyCanvas
+// │├─→ "pause_shiny"
+// │├─→ "pause_shade"
+// │├─→ "disable_shiny"
+// ┊└─→ "disable_shade"
+
+// disable pauses playing _and_ resets progress
+
+
+// - = Visual = -
+
+var shinyWidth = 3
+var shinyShear = 2
+var shinyDelay = 30
+var shinyTickSpeed = 1
+var shinyTimer = shinyDelay
+
+var shadeWidth = 3
+var shadeShear = -4
+var shadeDelay = 60
+var shadeTickSpeed = 2
+var shadeTimer = shadeDelay
+
+var shinyGreys = [
+  #000000,
+  #252525,
+  #494949,
+  #6b6b6b,
+  #898989,
+  #a2a2a2,
+  #b6b6b6,
+  #c4c4c4,
+  #cbcbcb,
+  #cbcbcb,
+  #c4c4c4,
+  #b6b6b6,
+  #a2a2a2,
+  #898989,
+  #6b6b6b,
+  #494949,
+  #252525,
+  #000000
+]
+var shadeGreys = [
+  #ffffff,
+  #f0f0f0,
+  #e1e1e1,
+  #d2d2d2,
+  #c4c4c4,
+  #b7b7b7,
+  #a9a9a9,
+  #9d9d9d,
+  #919191,
+  #878787,
+  #7d7d7d,
+  #747474,
+  #6d6d6d,
+  #666666,
+  #616161,
+  #5d5d5d,
+  #5a5a5a,
+  #595959,
+  #595959,
+  #5a5a5a,
+  #5d5d5d,
+  #616161,
+  #666666,
+  #6d6d6d,
+  #747474,
+  #7d7d7d,
+  #878787,
+  #919191,
+  #9d9d9d,
+  #a9a9a9,
+  #b7b7b7,
+  #c4c4c4,
+  #d2d2d2,
+  #e1e1e1,
+  #f0f0f0,
+  #fefefe
+]
+
+
+
+/* =============
+    Short Funcs
+:=============== */
+var Abs = math.Abs
+var Max = math.Max
+var Round = math.RoundToInt
+var Floor = math.FloorToInt
+var Ceil = math.CeilToInt
+
+var Size = string.Size
+var Split = string.Split
+var Sub = string.Sub
+var Equals = string.Equals
+
+// a proper one this time
+func Mod(n, m)
+  return ((n % m) + m) % m
+
+
+
+/* ===========
+    Functions
+:============= */
+
+// -- Main ---------------------------- //
+
+var canvii = null
+var MainPerform = null
+
+func Main(mask)
+  ?UIPositionCallback
+    for canvas : canvii
+      UIPositionCallback(canvas)
+  :?PositionCallback
+    for canvas : canvii
+      canvas.x = PositionCallback()［0］
+      canvas.y = PositionCallback()［1］
+
+  ?canPerform
+    MainPerform(canvii, mask)
+
+
+
+// -- General ------------------------- //
+
+// dependencies
+// ├─→ 0: canvas
+// └─→ 1: colors
+func ApplyColor(x, y, t, dependencies)
+  var canvas = dependencies［0］
+  var colors = dependencies［1］
+  
+  canvas.SetFG(x, y, colors［t］)
+
+func WipePattern(size, mask, t, wipeData,
+^dependencies)
+  var canvasW = size［0］
+  var canvasH = size［1］
+
+  var count = wipeData［0］
+  var wipeWidth = wipeData［1］
+  var shear = wipeData［2］
+  var tpMove = wipeData［3］
+  var callback = wipeData［4］
+
+  var elapsed = t / tpMove
+  var initPhase = t % tpMove
+
+  var phaseDel = shear * (canvasH - 1)
+  var vertWidth = wipeWidth + Abs(phaseDel)
+                ^ / tpMove
+  var startX
+  var endX
+  ?shear < 0
+    startX = wipeWidth + vertWidth - 1
+    endX = -wipeWidth
+  :
+    startX = canvasW - 1
+    endX = -vertWidth
+
+  ?startX - elapsed = endX
+    return true
+
+  for y = 0 .. canvasH - 1
+    // for the start of the wipe
+    var p0 = initPhase - y * shear
+    var x0 = startX - elapsed -
+         ^Floor((p0*1.0) / tpMove)
+    
+    // for the mask
+    var i = y * canvasW + x0
+
+    for x = 0 .. wipeWidth - 1
+      var p = Mod(p0, tpMove)
+
+      ?x0 + x >= 0 & x0 + x < canvasW & (
+      ^Equals(Sub(mask, i + x, 1), ＂1＂) |
+      ^Equals(mask, "1"))
+        p += x * tpMove
+
+        callback(x0 + x, y, p, dependencies)
+
+
+
+// -- Specific ------------------------ //
+
+func InitShinyCanvas(model)
+  var x
+  var y
+  var w
+  var h
+  ?type(model) = ＂array＂
+    x = 0
+    y = 0
+    w = model［0］
+    h = model［1］
+  :
+    x = model.x
+    y = model.y
+    w = model.w
+    h = model.h
+
+  var dCanvas = ui.AddCanvas()
+  dCanvas.dock = ＂top_left＂
+  dCanvas.anchor = ＂top_left＂
+  dCanvas.x = x
+  dCanvas.y = y
+  dCanvas.w = w
+  dCanvas.h = h
+  dCanvas.blend = ＂multiply＂
+  dCanvas.Set("#")
+
+  var sCanvas = ui.AddCanvas()
+  sCanvas.dock = ＂top_left＂
+  sCanvas.anchor = ＂top_left＂
+  sCanvas.x = x
+  sCanvas.y = y
+  sCanvas.w = w
+  sCanvas.h = h
+  sCanvas.blend = ＂add＂
+  sCanvas.Set("#")
+
+  canvii = ［dCanvas, sCanvas］
+  MainPerform = PerformShinyCanvas
+
+func PerformShinyCanvas(canvii, mask)
+  var pauseShade = conditions.Contains
+  ^("pause_shade")
+  var pauseShiny = conditions.Contains
+  ^("pause_shiny")
+  var disableShade = conditions.Contains
+  ^("disable_shade")
+  var disableShiny = conditions.Contains
+  ^("disable_shiny")
+
+  ?!pauseShade &
+  ^!disableShade
+    canvii［0］.SetFG(#ffffff)
+
+    ?shadeTimer <= 0
+      ?WipePattern(
+      ^［hatSize［0］, hatSize［1］］,
+      ^mask,
+      ^Abs(shadeTimer),
+      ^[
+        shadeGreys.Count(),
+        shadeWidth,
+        shadeShear,
+        shadeGreys.Count() / shadeWidth,  // aka shadeTicksPerMove
+        ApplyColor
+      ],
+      ^［canvii［0］, shadeGreys］
+      ^)
+        shadeTimer = shadeDelay
+    
+    ?totaltime % shadeTickSpeed = 0
+      shadeTimer--
+
+  ?!pauseShiny &
+  ^!disableShiny
+    canvii［1］.SetFG(#000000)
+
+    ?shinyTimer <= 0
+      ?WipePattern(
+      ^［hatSize［0］, hatSize［1］］,
+      ^mask,
+      ^Abs(shinyTimer),
+      ^[
+        shinyGreys.Count(),
+        shinyWidth,
+        shinyShear,
+        shinyGreys.Count() / shinyWidth,  // aka shinyTicksPerMove
+        ApplyColor
+      ],
+      ^［canvii［1］, shinyGreys］
+      ^)
+        shinyTimer = shinyDelay
+  
+    ?totaltime % shinyTickSpeed = 0
+      shinyTimer--
+
+  ?disableShade
+    canvii［0］.SetFG(#ffffff)
+    shadeTimer = shadeDelay
+
+  ?disableShiny
+    canvii［0］.SetFG(#ffffff)
+    shinyTimer = shinyDelay
