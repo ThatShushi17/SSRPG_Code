@@ -1,0 +1,78 @@
+func SetCanvasSprite(canvas, ascii)
+  var lines = Split(ascii, "\n＂)
+
+  for y = 0 .. lines.Count() - 1
+    var line = lines［y］
+    for x = 0 .. Size(line) - 1
+      var char = Sub(line, x, 1)
+        ?char ! "#"
+          canvas.Set(x,y,char)
+
+func SetCanvasGradient(canvas, color1, color2,
+^startPosition)
+  var w = canvas.w
+  var h = canvas.h
+  
+  var start = []
+  var end = []
+  
+  var startStrings = Split(startPosition, "_")
+  var yStartPos = startStrings[0]
+  var xStartPos = startStrings[1]
+  ?xStartPos = "left"
+    start.Add(0)
+    end.Add(w - 1)
+  :?xStartPos = "right"
+    start.Add(w - 1)
+    end.Add(0)
+  :
+    start.Add(null)
+    end.Add(null)
+
+  ?yStartPos = "top"
+    start.Add(0)
+    end.Add(h - 1)
+  :?yStartPos = "bottom"
+    start.Add(h - 1)
+    end.Add(0)
+  :
+    start.Add(null)
+    end.Add(null)
+
+  var val
+  var col
+  for y = 0 .. h - 1
+    for x = 0 .. w - 1
+      ?start[0] = null &
+      ^start[1] = null
+        val = 0.5
+      :?start[0] = null
+        val = (y * 1.0) / (h - 1)
+      :?start[1] = null
+        val = (x * 1.0) / (w - 1)
+      :
+        val = ((x + y) * 1.0) / (w + h - 2)
+
+      col = color.Lerp(color1, color2, val)
+
+      canvas.SetFG(x, y, col)
+
+func GenerateMask(ascii, w)
+  var mask = ""
+  var lines = Split(ascii, "\n＂)
+
+  for y = 0 .. lines.Count() - 1
+    var line = lines［y］
+    var lineLen = Size(line)
+    for x = 0 .. lineLen - 1
+      var char = Sub(line, x, 1)
+      ?char =  " " | char = "#"
+        mask += ＂0＂
+      :
+        mask += ＂1＂
+    
+    ?w - lineLen > 0
+      for y = lineLen .. w - 1
+        mask += ＂0＂
+
+  return mask
