@@ -263,13 +263,16 @@ func PerformShinyCanvas(canvii, mask)
   var disableShiny = conditions.Contains
   ^("disable_shiny")
 
+  var shadeCanvas = canvii［0］
+  var shinyCanvas = canvii［1］
+
   ?!pauseShade &
   ^!disableShade
-    canvii［0］.SetFG(#ffffff)
+    shadeCanvas.SetFG(#ffffff)
 
     ?shadeTimer <= 0
       ?WipePattern(
-      ^［hatSize［0］, hatSize［1］］,
+      ^［shadeCanvas.w, shadeCanvas.h］,
       ^mask,
       ^Abs(shadeTimer),
       ^[
@@ -279,7 +282,7 @@ func PerformShinyCanvas(canvii, mask)
         shadeGreys.Count() / shadeWidth,  // shadeTicksPerMove
         ApplyColor
       ],
-      ^［canvii［0］, shadeGreys］
+      ^［shadeCanvas, shadeGreys］
       ^)
         shadeTimer = shadeDelay
     
@@ -288,11 +291,11 @@ func PerformShinyCanvas(canvii, mask)
 
   ?!pauseShiny &
   ^!disableShiny
-    canvii［1］.SetFG(#000000)
+    ShinyCanvas.SetFG(#000000)
 
     ?shinyTimer <= 0
       ?WipePattern(
-      ^［hatSize［0］, hatSize［1］］,
+      ^［ShinyCanvas.w, ShinyCanvas.h］,
       ^mask,
       ^Abs(shinyTimer),
       ^[
@@ -302,7 +305,7 @@ func PerformShinyCanvas(canvii, mask)
         shinyGreys.Count() / shinyWidth,  // shinyTicksPerMove
         ApplyColor
       ],
-      ^［canvii［1］, shinyGreys］
+      ^［ShinyCanvas, shinyGreys］
       ^)
         shinyTimer = shinyDelay
   
@@ -310,9 +313,9 @@ func PerformShinyCanvas(canvii, mask)
       shinyTimer--
 
   ?disableShade
-    canvii［0］.SetFG(#ffffff)
+    shadeCanvas.SetFG(#ffffff)
     shadeTimer = shadeDelay
 
   ?disableShiny
-    canvii［0］.SetFG(#ffffff)
+    ShinyCanvas.SetFG(#000000)
     shinyTimer = shinyDelay
