@@ -1,6 +1,6 @@
-/* =============
-    User Facing
-:=============== */
+/* ====================
+    ANCHOR User Facing
+:====================== */
 
 // -- Mandatory ----------------------- //
 // these you must set manually for the code
@@ -106,9 +106,9 @@ var shadeGreys = [
 
 
 
-/* =============
-    Short Funcs
-:=============== */
+/* ====================
+    ANCHOR Short Funcs
+:====================== */
 var Abs = math.Abs
 var Max = math.Max
 var Round = math.RoundToInt
@@ -126,9 +126,9 @@ func Mod(n, m)
 
 
 
-/* ===========
-    Functions
-:============= */
+/* ==================
+    ANCHOR Functions
+:==================== */
 
 // -- Main ---------------------------- //
 
@@ -158,7 +158,7 @@ func ApplyColor(x, y, t, dependencies)
   var canvas = dependencies［0］
   var colors = dependencies［1］
   
-  canvas.SetFG(x, y, colors［t］)
+  canvas.SetFG(x, y, colors［t］) // TODO add to an array instead and calculate instead
 
 func WipePattern(size, mask, t, wipeData,
 ^dependencies)
@@ -188,6 +188,8 @@ func WipePattern(size, mask, t, wipeData,
 
   ?startX - elapsed = endX
     return true
+
+  // var maskLength = Size(mask)
 
   for y = 0 .. canvasH - 1
     // for the start of the wipe
@@ -274,7 +276,7 @@ func PerformShinyCanvas(canvii, mask)
         shadeGreys.Count(),
         shadeWidth,
         shadeShear,
-        shadeGreys.Count() / shadeWidth,  // aka shadeTicksPerMove
+        shadeGreys.Count() / shadeWidth,  // shadeTicksPerMove
         ApplyColor
       ],
       ^［canvii［0］, shadeGreys］
@@ -297,7 +299,7 @@ func PerformShinyCanvas(canvii, mask)
         shinyGreys.Count(),
         shinyWidth,
         shinyShear,
-        shinyGreys.Count() / shinyWidth,  // aka shinyTicksPerMove
+        shinyGreys.Count() / shinyWidth,  // shinyTicksPerMove
         ApplyColor
       ],
       ^［canvii［1］, shinyGreys］
