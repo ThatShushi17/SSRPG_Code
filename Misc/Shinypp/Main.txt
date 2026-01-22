@@ -291,11 +291,11 @@ func PerformShinyCanvas(canvii, mask)
 
   ?!pauseShiny &
   ^!disableShiny
-    ShinyCanvas.SetFG(#000000)
+    shinyCanvas.SetFG(#000000)
 
     ?shinyTimer <= 0
       ?WipePattern(
-      ^［ShinyCanvas.w, ShinyCanvas.h］,
+      ^［shinyCanvas.w, shinyCanvas.h］,
       ^mask,
       ^Abs(shinyTimer),
       ^[
@@ -317,5 +317,5 @@ func PerformShinyCanvas(canvii, mask)
     shadeTimer = shadeDelay
 
   ?disableShiny
-    ShinyCanvas.SetFG(#000000)
+    shinyCanvas.SetFG(#000000)
     shinyTimer = shinyDelay
