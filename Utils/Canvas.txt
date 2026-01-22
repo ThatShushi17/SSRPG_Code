@@ -1,10 +1,10 @@
 func SetCanvasSprite(canvas, ascii)
-  var lines = Split(ascii, "\n＂)
+  var lines = string.Split(ascii, "\n＂)
 
   for y = 0 .. lines.Count() - 1
     var line = lines［y］
-    for x = 0 .. Size(line) - 1
-      var char = Sub(line, x, 1)
+    for x = 0 .. string.Size(line) - 1
+      var char = string.Sub(line, x, 1)
         ?char ! "#"
           canvas.Set(x,y,char)
 
@@ -16,7 +16,8 @@ func SetCanvasGradient(canvas, color1, color2,
   var start = []
   var end = []
   
-  var startStrings = Split(startPosition, "_")
+  var startStrings = string.Split
+                     ^(startPosition, "_")
   var yStartPos = startStrings[0]
   var xStartPos = startStrings[1]
   ?xStartPos = "left"
@@ -59,13 +60,13 @@ func SetCanvasGradient(canvas, color1, color2,
 
 func GenerateMask(ascii, w)
   var mask = ""
-  var lines = Split(ascii, "\n＂)
+  var lines = string.Split(ascii, "\n＂)
 
   for y = 0 .. lines.Count() - 1
     var line = lines［y］
-    var lineLen = Size(line)
+    var lineLen = string.Size(line)
     for x = 0 .. lineLen - 1
-      var char = Sub(line, x, 1)
+      var char = string.Sub(line, x, 1)
       ?char =  " " | char = "#"
         mask += ＂0＂
       :
