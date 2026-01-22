@@ -214,7 +214,7 @@ func WipePattern(size, mask, t, wipeData,
 
 // -- Specific ------------------------ //
 
-func InitShinyCanvas(model)
+func InitShinyEffect(model)
   var x
   var y
   var w
@@ -239,7 +239,7 @@ func InitShinyCanvas(model)
   dCanvas.h = h
   dCanvas.blend = ＂multiply＂
   dCanvas.Set("#")
-  dCanvas.Set(#ffffff)
+  dCanvas.SetFG(#ffffff)
 
   var sCanvas = ui.AddCanvas()
   sCanvas.dock = ＂top_left＂
@@ -253,9 +253,9 @@ func InitShinyCanvas(model)
   sCanvas.SetFG(#000000)
 
   canvii = ［dCanvas, sCanvas］
-  MainPerform = PerformShinyCanvas
+  MainPerform = PerformShinyEffect
 
-func PerformShinyCanvas(canvii, mask)
+func PerformShinyEffect(canvii, mask)
   var pauseShade = conditions.Contains
   ^("pause_shade")
   var pauseShiny = conditions.Contains
