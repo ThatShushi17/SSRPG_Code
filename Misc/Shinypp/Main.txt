@@ -239,6 +239,7 @@ func InitShinyCanvas(model)
   dCanvas.h = h
   dCanvas.blend = ＂multiply＂
   dCanvas.Set("#")
+  dCanvas.Set(#ffffff)
 
   var sCanvas = ui.AddCanvas()
   sCanvas.dock = ＂top_left＂
@@ -249,6 +250,7 @@ func InitShinyCanvas(model)
   sCanvas.h = h
   sCanvas.blend = ＂add＂
   sCanvas.Set("#")
+  sCanvas.SetFG(#000000)
 
   canvii = ［dCanvas, sCanvas］
   MainPerform = PerformShinyCanvas
