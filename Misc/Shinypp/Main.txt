@@ -305,7 +305,7 @@ func PerformShinyCanvas(canvii, mask)
         shinyGreys.Count() / shinyWidth,  // shinyTicksPerMove
         ApplyColor
       ],
-      ^［ShinyCanvas, shinyGreys］
+      ^［shinyCanvas, shinyGreys］
       ^)
         shinyTimer = shinyDelay
   
