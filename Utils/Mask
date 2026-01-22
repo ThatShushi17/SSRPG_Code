@@ -1,0 +1,19 @@
+func GenerateMask(ascii, w)
+  var mask = ""
+  var lines = string.Split(ascii, "\n＂)
+
+  for y = 0 .. lines.Count() - 1
+    var line = lines［y］
+    var lineLen = string.Size(line)
+    for x = 0 .. lineLen - 1
+      var char = string.Sub(line, x, 1)
+      ?char =  " " | char = "#"
+        mask += ＂0＂
+      :
+        mask += ＂1＂
+    
+    ?w - lineLen > 0
+      for y = lineLen .. w - 1
+        mask += ＂0＂
+
+  return mask
