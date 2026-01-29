@@ -1,3 +1,17 @@
+/* ====================
+    ANCHOR Short Funcs
+:====================== */
+
+// a proper one this time
+func Mod(n, m)
+  return ((n % m) + m) % m
+
+
+
+/* ==================
+    ANCHOR Functions
+:==================== */
+
 func SetCanvasSprite(canvas, ascii)
   var lines = string.Split(ascii, "\n＂)
 
@@ -57,3 +71,56 @@ func SetCanvasGradient(canvas, color1, color2,
       col = color.Lerp(color1, color2, val)
 
       canvas.SetFG(x, y, col)
+
+func ApplyRainbow (canvas, colors, mask,
+^xShear, yShear, t)
+  var cols = colors
+  ?cols = null
+    cols = [
+      #ff4994,
+      #ff4973,
+      #ff4a4e,
+      #ff643a,
+      #ff833a,
+      #ff9b39,
+      #ffaf3a,
+      #ffc43b,
+      #ffdc3c,
+      #fffa40,
+      #dcff42,
+      #a7ff45,
+      #4fff5b,
+      #49ffa2,
+      #44ffc7,
+      #42ffe3,
+      #41fffa,
+      #3fefff,
+      #3fddff,
+      #3ecbff,
+      #3db6ff,
+      #3b9dff,
+      #2b66ff,
+      #5753ff,
+      #7c50ff,
+      #9f4fff,
+      #c44fff,
+      #ef51ff,
+      #ff4ee0,
+      #ff4bb7
+    ]
+  var count = cols.Count()
+
+  for y = 0 .. canvas.h - 1
+    var yPhase = y * yShear
+
+    for x = 0 .. canvas.w - 1
+      var i = x + y * w
+      var xPhase = x * xShear
+
+      var maskCond = Equals(mask, "1")
+      ?!maskCond
+        maskCond = Equals(Sub(mask, i, 1), ＂1＂)
+
+      ?maskCond
+        var phase = Mod(xPhase + yPhase + t, count)
+        canvas.SetFG(x, y, cols[phase])
