@@ -117,9 +117,10 @@ func ApplyRainbow (canvas, colors, mask,
       var i = x + y * w
       var xPhase = x * xShear
 
-      var maskCond = Equals(mask, "1")
+      var maskCond = string.Equals(mask, "1")
       ?!maskCond
-        maskCond = Equals(Sub(mask, i, 1), ＂1＂)
+        maskCond = string.Equals(
+                  ^Sub(mask, i, 1), ＂1＂)
 
       ?maskCond
         var phase = Mod(xPhase + yPhase + t, count)
