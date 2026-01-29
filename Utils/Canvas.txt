@@ -2,6 +2,11 @@
     ANCHOR Short Funcs
 :====================== */
 
+var Size = string.Size
+var Split = string.Split
+var Sub = string.Sub
+var Equals = string.Equals
+
 // a proper one this time
 func Mod(n, m)
   return ((n % m) + m) % m
@@ -13,12 +18,12 @@ func Mod(n, m)
 :==================== */
 
 func SetCanvasSprite(canvas, ascii)
-  var lines = string.Split(ascii, "\n＂)
+  var lines = Split(ascii, "\n＂)
 
   for y = 0 .. lines.Count() - 1
     var line = lines［y］
-    for x = 0 .. string.Size(line) - 1
-      var char = string.Sub(line, x, 1)
+    for x = 0 .. Size(line) - 1
+      var char = Sub(line, x, 1)
         ?char ! "#"
           canvas.Set(x,y,char)
 
@@ -30,7 +35,7 @@ func SetCanvasGradient(canvas, color1, color2,
   var start = []
   var end = []
   
-  var startStrings = string.Split
+  var startStrings = Split
                      ^(startPosition, "_")
   var yStartPos = startStrings[0]
   var xStartPos = startStrings[1]
@@ -117,9 +122,9 @@ func ApplyRainbow (canvas, colors, mask,
       var i = x + y * w
       var xPhase = x * xShear
 
-      var maskCond = string.Equals(mask, "1")
+      var maskCond = Equals(mask, "1")
       ?!maskCond
-        maskCond = string.Equals(
+        maskCond = Equals(
                   ^Sub(mask, i, 1), ＂1＂)
 
       ?maskCond
