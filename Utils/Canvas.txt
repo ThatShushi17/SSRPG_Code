@@ -27,16 +27,14 @@ func SetCanvasSprite(canvas, ascii)
         ?char ! "#"
           canvas.Set(x,y,char)
 
-func SetCanvasGradient(canvas, color1, color2,
-^startPosition)
+func SetCanvasGradient(canvas, color1, color2, startPosition)
   var w = canvas.w
   var h = canvas.h
   
   var start = []
   var end = []
   
-  var startStrings = Split
-                     ^(startPosition, "_")
+  var startStrings = Split(startPosition, "_")
   var yStartPos = startStrings[0]
   var xStartPos = startStrings[1]
   ?xStartPos = "left"
@@ -63,8 +61,7 @@ func SetCanvasGradient(canvas, color1, color2,
   var col
   for y = 0 .. h - 1
     for x = 0 .. w - 1
-      ?start[0] = null &
-      ^start[1] = null
+      ?start[0] = null & start[1] = null
         val = 0.5
       :?start[0] = null
         val = (y * 1.0) / (h - 1)
@@ -77,8 +74,9 @@ func SetCanvasGradient(canvas, color1, color2,
 
       canvas.SetFG(x, y, col)
 
-func ApplyRainbow (canvas, colors, mask,
-^xShear, yShear, t)
+func ApplyRainbow (canvas, colors, mask, xShear, yShear, t)
+  var w = canvas.w
+  var h = canvas.h
   var cols = colors
   ?cols = null
     cols = [
@@ -115,17 +113,16 @@ func ApplyRainbow (canvas, colors, mask,
     ]
   var count = cols.Count()
 
-  for y = 0 .. canvas.h - 1
+  for y = 0 .. h - 1
     var yPhase = y * yShear
 
-    for x = 0 .. canvas.w - 1
+    for x = 0 .. w - 1
       var i = x + y * w
       var xPhase = x * xShear
 
       var maskCond = Equals(mask, "1")
       ?!maskCond
-        maskCond = Equals(
-                  ^Sub(mask, i, 1), ＂1＂)
+        maskCond = Equals(Sub(mask, i, 1), ＂1＂)
 
       ?maskCond
         var phase = Mod(xPhase + yPhase + t, count)
