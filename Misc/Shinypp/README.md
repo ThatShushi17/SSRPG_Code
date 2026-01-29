@@ -7,7 +7,7 @@ This module allows you to generate animated effects (such as the one the shiny i
 3. Next, you need to create a function which determines where the effect should be drawn.
     * If you are using it for a UI component, its best the same function to position the element is used. If your function takes in the UI element and sets its position, add that function to the effect by setting `UIPositionCallback`.
     * Otherwise, create a function that takes in no arguments and returns an `[x, y]` array, and set `PositionCallback` to it. Note that advanced prints such as `>h` draw over canvases, and hence cant be made shiny through this module.
-4. Lastly, make sure to run the `Main` method every frame to render the effect (the others should be run when `loc.begin | loc.loop`). It takes in a mask, which is a bitstring which encodes which tiles are empty and shouldnt be drawn over by the effect. You can generate a mask from the `Mask` module at `Utils`.
+4. Lastly, make sure to run the `Main` method every frame to render the effect (the others should be run when `loc.begin | loc.loop`). It takes in a mask, which is a bitstring which encodes which tiles are empty and shouldnt be drawn over by the effect. You can generate a mask from the `Mask` module at `Utils`. If you want all tiles to have the effect, use the custom mask `"1"`.
 
 Here is some sample code to create a shiny hat using the module.
 ```
