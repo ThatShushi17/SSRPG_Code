@@ -203,9 +203,11 @@ func WipePattern(size, mask, t, wipeData,
     for x = 0 .. wipeWidth - 1
       var p = Mod(p0, tpMove)
 
-      ?x0 + x >= 0 & x0 + x < canvasW & (
-      ^Equals(Sub(mask, i + x, 1), ＂1＂) |
-      ^Equals(mask, "1"))
+      var maskCond = Equals(mask, "1")
+      ?!maskCond
+        maskCond = Equals(Sub(mask,i+x,1),＂1＂)
+
+      ?x0 + x >= 0 & x0 + x < canvasW &maskCond
         p += x * tpMove
 
         callback(x0 + x, y, p, dependencies)
