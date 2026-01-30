@@ -13,6 +13,78 @@ func Mod(n, m)
 
 
 
+/* =============
+    ANCHOR Data
+:=============== */
+
+var HSV_colors = [
+  #ff4994,
+  #ff4973,
+  #ff4a4e,
+  #ff643a,
+  #ff833a,
+  #ff9b39,
+  #ffaf3a,
+  #ffc43b,
+  #ffdc3c,
+  #fffa40,
+  #dcff42,
+  #a7ff45,
+  #4fff5b,
+  #49ffa2,
+  #44ffc7,
+  #42ffe3,
+  #41fffa,
+  #3fefff,
+  #3fddff,
+  #3ecbff,
+  #3db6ff,
+  #3b9dff,
+  #2b66ff,
+  #5753ff,
+  #7c50ff,
+  #9f4fff,
+  #c44fff,
+  #ef51ff,
+  #ff4ee0,
+  #ff4bb7
+]
+
+var HSL_colors = [
+  #ab0059,
+  #ab003e,
+  #ac001d,
+  #ab2d00,
+  #aa4a00,
+  #a95d00,
+  #a86d00,
+  #a87c00,
+  #a78d00,
+  #a6a200,
+  #8da700,
+  #65a700,
+  #00a722,
+  #00a763,
+  #00a77f,
+  #00a793,
+  #00a7a3,
+  #009ca8,
+  #008fa8,
+  #0082a9,
+  #0073aa,
+  #005eab,
+  #0127af,
+  #2e00af,
+  #4900ae,
+  #6200ad,
+  #7d00ac,
+  #9d00ab,
+  #aa0093,
+  #ab0075,
+]
+
+
+
 /* ==================
     ANCHOR Functions
 :==================== */
@@ -74,43 +146,18 @@ func SetCanvasGradient(canvas, color1, color2, startPosition)
 
       canvas.SetFG(x, y, col)
 
-func ApplyRainbow (canvas, colors, mask, xShear, yShear, t)
+func ApplyColorAnimation (canvas, colors, mask, xShear, yShear, t)
   var w = canvas.w
   var h = canvas.h
-  var cols = colors
-  ?cols = null
-    cols = [
-      #ff4994,
-      #ff4973,
-      #ff4a4e,
-      #ff643a,
-      #ff833a,
-      #ff9b39,
-      #ffaf3a,
-      #ffc43b,
-      #ffdc3c,
-      #fffa40,
-      #dcff42,
-      #a7ff45,
-      #4fff5b,
-      #49ffa2,
-      #44ffc7,
-      #42ffe3,
-      #41fffa,
-      #3fefff,
-      #3fddff,
-      #3ecbff,
-      #3db6ff,
-      #3b9dff,
-      #2b66ff,
-      #5753ff,
-      #7c50ff,
-      #9f4fff,
-      #c44fff,
-      #ef51ff,
-      #ff4ee0,
-      #ff4bb7
-    ]
+  var cols
+  ?type(colors) = "array"
+    cols = colors
+  :?colors = "HSV"
+    cols = HSV_colors
+  :?colors = "HSL"
+    cols = HSL_colors
+  :
+    cols = HSV_colors
   var count = cols.Count()
 
   for y = 0 .. h - 1
