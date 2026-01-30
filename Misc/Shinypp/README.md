@@ -15,9 +15,9 @@ var cut = import Utils/Canvas
 var ms = import Utils/Mask
 
 func SetHatPos(comp)
-  var x = screen.FromWorldX(pos.x) + hatOff［0］
+  var x = screen.FromWorldX(pos.x) + hatOff[0]
   var y = screen.FromWorldZ(pos.z-pos.y) +
-         ^hatOff［1］
+         ^hatOff[1]
 
   comp.x = x
   comp.y = y
@@ -28,24 +28,24 @@ var hat_ascii = ascii
 #` # ´
 asciiend
 
-var hatOff = ［-3, -4］
-var hatSize = ［6, 3］
+var hatOff = [-3, -4]
+var hatSize = [6, 3]
 var hatCol1 = #ff446f
 var hatCol2 = #50b
 var hatMask = ms.GenerateMask
-^(hat_ascii, hatSize［0］)
+^(hat_ascii, hatSize[0])
 
 var hatCanvas
 var hatspp = new Misc/Shinypp/Main
 ?loc.begin | loc.loop
   hatCanvas = ui.AddCanvas()
-  hatCanvas.dock = ＂top_left＂
-  hatCanvas.anchor = ＂top_left＂
-  hatCanvas.w = hatSize［0］
-  hatCanvas.h = hatSize［1］
+  hatCanvas.dock = "top_left"
+  hatCanvas.anchor = "top_left"
+  hatCanvas.w = hatSize[0]
+  hatCanvas.h = hatSize[1]
   cut.SetCanvasSprite(hatCanvas, hat_ascii)
   cut.SetCanvasGradient(hatCanvas, hatCol1,
-  ^hatCol2, ＂top_center＂)
+  ^hatCol2, "top_center")
 
   hatspp.InitShinyEffect(hatCanvas)
   hatspp.UIPositionCallback = SetHatPos
