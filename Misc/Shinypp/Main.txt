@@ -175,8 +175,7 @@ func WipePattern(size, mask, t, wipeData,
   var initPhase = t % tpMove
 
   var phaseDel = shear * (canvasH - 1)
-  var vertWidth = wipeWidth + Abs(phaseDel)
-                ^ / tpMove
+  var vertWidth = wipeWidth + Abs(phaseDel) / tpMove
   var startX
   var endX
   ?shear < 0
@@ -194,8 +193,7 @@ func WipePattern(size, mask, t, wipeData,
   for y = 0 .. canvasH - 1
     // for the start of the wipe
     var p0 = initPhase - y * shear
-    var x0 = startX - elapsed -
-         ^Floor((p0*1.0) / tpMove)
+    var x0 = startX - elapsed - Floor((p0 * 1.0) / tpMove)
     
     // for the mask
     var i = y * canvasW + x0
@@ -203,11 +201,16 @@ func WipePattern(size, mask, t, wipeData,
     for x = 0 .. wipeWidth - 1
       var p = Mod(p0, tpMove)
 
+      var posCond = false
       var maskCond = Equals(mask, "1")
-      ?!maskCond
-        maskCond = Equals(Sub(mask,i+x,1),＂1＂)
 
-      ?x0 + x >= 0 & x0 + x < canvasW &maskCond
+      ?x0 + x >= 0 & x0 + x < canvasW
+        posCond = true
+
+      ?!maskCond
+        maskCond = Equals(Sub(mask, i + x, 1), ＂1＂)
+
+      ?posCond & maskCond
         p += x * tpMove
 
         callback(x0 + x, y, p, dependencies)
@@ -258,20 +261,15 @@ func InitShinyEffect(model)
   MainPerform = PerformShinyEffect
 
 func PerformShinyEffect(canvii, mask)
-  var pauseShade = conditions.Contains
-  ^("pause_shade")
-  var pauseShiny = conditions.Contains
-  ^("pause_shiny")
-  var disableShade = conditions.Contains
-  ^("disable_shade")
-  var disableShiny = conditions.Contains
-  ^("disable_shiny")
+  var pauseShade = conditions.Contains("pause_shade")
+  var pauseShiny = conditions.Contains("pause_shiny")
+  var disableShade = conditions.Contains("disable_shade")
+  var disableShiny = conditions.Contains("disable_shiny")
 
   var shadeCanvas = canvii［0］
   var shinyCanvas = canvii［1］
 
-  ?!pauseShade &
-  ^!disableShade
+  ?!pauseShade & !disableShade
     shadeCanvas.SetFG(#ffffff)
 
     ?shadeTimer <= 0
@@ -293,8 +291,7 @@ func PerformShinyEffect(canvii, mask)
     ?totaltime % shadeTickSpeed = 0
       shadeTimer--
 
-  ?!pauseShiny &
-  ^!disableShiny
+  ?!pauseShiny & !disableShiny
     shinyCanvas.SetFG(#000000)
 
     ?shinyTimer <= 0
