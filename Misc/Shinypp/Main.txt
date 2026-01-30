@@ -197,17 +197,17 @@ func WipePattern(size, mask, t, wipeData,
     
     // for the mask
     var i = y * canvasW + x0
+    var maskCond = Equals(mask, "1")
 
     for x = 0 .. wipeWidth - 1
       var p = Mod(p0, tpMove)
 
       var posCond = false
-      var maskCond = Equals(mask, "1")
 
       ?x0 + x >= 0 & x0 + x < canvasW
         posCond = true
 
-      ?!maskCond
+      ?!maskCond & posCond
         maskCond = Equals(Sub(mask, i + x, 1), ＂1＂)
 
       ?posCond & maskCond
