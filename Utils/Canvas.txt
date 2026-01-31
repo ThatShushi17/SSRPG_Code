@@ -82,10 +82,10 @@ func ApplyColorAnimation (canvas, colors, mask, xShear, yShear, t)
     cols = HSV_85
   :?type(colors) = "array"
     cols = colors
-  :?colors = "midnight" | colors =  "midnight_A"
-    cols = midnightA
-  :?colors = "midnight_B"
-    cols = midnightB
+  :?colors = "twilight" | colors =  "twilight_A"
+    cols = twilightA
+  :?colors = "twilight_B"
+    cols = twilightB
   :?colors = "HSV_70"
     cols = HSV_70
   :?colors = "HSV" | colors = "HSV_85"
@@ -321,7 +321,7 @@ var HSL_80 = [
   #ffa7d4,
 ]
 
-var midnightA = [
+var twilightA = [
   #0070bc,
   #0270be,
   #0570bf,
@@ -384,7 +384,7 @@ var midnightA = [
   #0270be,
 ]
 
-var midnightB = [
+var twilightB = [
   #0070bc,
   #0070bc,
   #0170bd,
