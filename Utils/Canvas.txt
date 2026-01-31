@@ -13,78 +13,6 @@ func Mod(n, m)
 
 
 
-/* =============
-    ANCHOR Data
-:=============== */
-
-var HSV_colors = [
-  #ff4994,
-  #ff4973,
-  #ff4a4e,
-  #ff643a,
-  #ff833a,
-  #ff9b39,
-  #ffaf3a,
-  #ffc43b,
-  #ffdc3c,
-  #fffa40,
-  #dcff42,
-  #a7ff45,
-  #4fff5b,
-  #49ffa2,
-  #44ffc7,
-  #42ffe3,
-  #41fffa,
-  #3fefff,
-  #3fddff,
-  #3ecbff,
-  #3db6ff,
-  #3b9dff,
-  #2b66ff,
-  #5753ff,
-  #7c50ff,
-  #9f4fff,
-  #c44fff,
-  #ef51ff,
-  #ff4ee0,
-  #ff4bb7
-]
-
-var HSL_colors = [
-  #ff6ba1,
-  #ff7089,
-  #ff7470,
-  #ff7853,
-  #ff7a23,
-  #f18700,
-  #e19300,
-  #d29c00,
-  #c2a400,
-  #b0ac00,
-  #99b400,
-  #74be00,
-  #00c92a,
-  #00c575,
-  #00c394,
-  #00c0a9,
-  #00beba,
-  #00bcc9,
-  #00b9d9,
-  #00b6eb,
-  #1db1ff,
-  #5baaff,
-  #78a3ff,
-  #8e9cff,
-  #a294ff,
-  #b78aff,
-  #cf7aff,
-  #f05aff,
-  #ff55e0,
-  #ff63bd,
-]
-
-
-
 /* ==================
     ANCHOR Functions
 :==================== */
@@ -152,12 +80,20 @@ func ApplyColorAnimation (canvas, colors, mask, xShear, yShear, t)
   var cols
   ?type(colors) = "array"
     cols = colors
-  :?colors = "HSV"
-    cols = HSV_colors
-  :?colors = "HSL"
-    cols = HSL_colors
+  :?colors = "HSV_70"
+    cols = HSV_70
+  :?colors = "HSV" | colors = "HSV_85"
+    cols = HSV_85
+  :?colors = "HSV_100"
+    cols = HSV_100
+  :?colors = "HSL_60"
+    cols = HSL_60
+  :?colors = "HSL" | colors = "HSL_70"
+    cols = HSL_70
+  :?colors = "HSL_80"
+    cols = HSL_80
   :
-    cols = HSV_colors
+    cols = HSV_85
   var count = cols.Count()
 
   for y = 0 .. h - 1
@@ -174,3 +110,207 @@ func ApplyColorAnimation (canvas, colors, mask, xShear, yShear, t)
       ?maskCond
         var phase = Mod(xPhase + yPhase + t, count)
         canvas.SetFG(x, y, cols[phase])
+
+
+
+/* =============
+    ANCHOR Data
+:=============== */
+
+var HSV_70 = [
+  #ff6ca1,
+  #ff6b85,
+  #ff6c69,
+  #ff7d5a,
+  #ff9459,
+  #ffa759,
+  #ffb859,
+  #ffcb5a,
+  #ffe05c,
+  #fffb60,
+  #deff62,
+  #b1ff67,
+  #73ff77,
+  #6bffad,
+  #65ffcd,
+  #62ffe5,
+  #60fffa,
+  #5ff1ff,
+  #5ee0ff,
+  #5ed0ff,
+  #5dbfff,
+  #5cabff,
+  #5085ff,
+  #6e78ff,
+  #8e75ff,
+  #ad74ff,
+  #ce74ff,
+  #f377ff,
+  #ff72e2,
+  #ff6ec0,
+]
+
+var HSV_85 = [
+  #ff4994,
+  #ff4973,
+  #ff4a4e,
+  #ff643a,
+  #ff833a,
+  #ff9b39,
+  #ffaf3a,
+  #ffc43b,
+  #ffdc3c,
+  #fffa40,
+  #dcff42,
+  #a7ff45,
+  #4fff5b,
+  #49ffa2,
+  #44ffc7,
+  #42ffe3,
+  #41fffa,
+  #3fefff,
+  #3fddff,
+  #3ecbff,
+  #3db6ff,
+  #3b9dff,
+  #2b66ff,
+  #5753ff,
+  #7c50ff,
+  #9f4fff,
+  #c44fff,
+  #ef51ff,
+  #ff4ee0,
+  #ff4bb7
+]
+
+var HSV_100 = [
+  #ff0088,
+  #ff0061,
+  #ff0031,
+  #ff4800,
+  #ff7300,
+  #ff9000,
+  #ffa800,
+  #ffbf00,
+  #ffd900,
+  #fff900,
+  #d9ff00,
+  #9dff00,
+  #00ff39,
+  #00ff99,
+  #00ffc3,
+  #00ffe1,
+  #00fffa,
+  #00eeff,
+  #00daff,
+  #00c6ff,
+  #00aeff,
+  #008fff,
+  #023dff,
+  #4800ff,
+  #6e00ff,
+  #9301ff,
+  #bc01ff,
+  #eb00ff,
+  #ff00dd,
+  #ff00b0,
+]
+
+var HSL_60 = [
+  #ff1f8a,
+  #ff3069,
+  #ff3a44,
+  #fb4700,
+  #e46600,
+  #d37600,
+  #c58000,
+  #b78800,
+  #aa8f00,
+  #9a9600,
+  #859e00,
+  #64a600,
+  #00af24,
+  #00ac66,
+  #00aa81,
+  #00a894,
+  #00a6a2,
+  #00a4b0,
+  #00a2be,
+  #009fce,
+  #009ae2,
+  #1692ff,
+  #568aff,
+  #7581ff,
+  #8f76ff,
+  #a867ff,
+  #c44dff,
+  #e400f7,
+  #f200d2,
+  #fc00ae,
+]
+
+var HSL_70 = [
+  #ff77a7,
+  #ff7c90,
+  #ff7f7a,
+  #ff8261,
+  #ff853d,
+  #f98c00,
+  #e89800,
+  #d8a100,
+  #c8aa00,
+  #b6b200,
+  #9eba00,
+  #78c400,
+  #00cf2c,
+  #00cc79,
+  #00c999,
+  #00c7af,
+  #00c4c0,
+  #00c2d0,
+  #00bfe0,
+  #00bcf3,
+  #3cb6ff,
+  #67b0ff,
+  #80a9ff,
+  #95a3ff,
+  #a89cff,
+  #bb92ff,
+  #d284ff,
+  #f168ff,
+  #ff65e1,
+  #ff71c1,
+]
+
+var HSL_80 = [
+  #ffaac4,
+  #ffadb6,
+  #ffaea9,
+  #ffb09b,
+  #ffb28b,
+  #ffb475,
+  #ffb653,
+  #fabb00,
+  #e8c500,
+  #d3ce00,
+  #b7d800,
+  #8be300,
+  #00f035,
+  #00ec8d,
+  #00e8b2,
+  #00e6ca,
+  #00e3de,
+  #00e1f1,
+  #36dcff,
+  #72d5ff,
+  #8ccfff,
+  #9dcbff,
+  #abc7ff,
+  #b7c3ff,
+  #c3beff,
+  #d1b8ff,
+  #e1b0ff,
+  #f8a2ff,
+  #ffa3e9,
+  #ffa7d4,
+]
