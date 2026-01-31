@@ -26,9 +26,9 @@ var conditions = []
 // │├─→ "pause_shiny"
 // │├─→ "pause_shade"
 // │├─→ "disable_shiny"
-// │└─→ "disable_shade"
+// │├─→ "disable_shade"
 // │├─→ "playonce_shiny"
-// ┊├─→ "playonce_shiny"
+// ┊└─→ "playonce_shiny"
 
 // pause stops the progression of the effect. does not reset the rogress, and is still visible.
 // disable is same as pause but also resets progress. after enabling the animation instantly plays
