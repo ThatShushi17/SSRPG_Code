@@ -14,4 +14,8 @@ Utility functions primarily revolving around the Canvas UI element
 
     * `"HSL"`: Uses a 30-long array of colors generated from `OKHSL ( t° 100% L% )`, where `t` starts from 0 and incerememnts by 12 per entry. Enter L values with `"HSL_60"`, `"HSL_70"`, or `"HSL_80"`. `"HSL"` defaults to `"HSL_70"`
 
-    * `"twilight"`: Uses an array of colors interpolated between `#5466F2` and `#0070BC`. `"twilight_A"` and `"twilight_B"` have different interpolants. `"twilight"` defaults to `"twilight_A"`
+    * `"twilight"`: Uses an array of colors interpolated between `#2f5ab9` and `#ff5b99`. `"twilight_A"` and `"twilight_B"` have different interpolants. `"twilight"` defaults to `"twilight_A"`
+
+    * `"autumn"`: Uses an array of colors interpolated between `#c50903` and `#faaa32`. `"autumn_A"` and `"autumn_B"` have different interpolants. `"autumn"` defaults to `"autumn_A"`
+ 
+    * `"verdant"`: Uses an array of colors interpolated between `#60df4b` and `#e5e641`. `"verdant_A"` and `"verdant_B"` have different interpolants. `"verdant"` defaults to `"verdant_A"`
