@@ -329,7 +329,7 @@ var HSL_80 = [
   #ffa7d4,
 ]
 
-twilightA = [
+var twilightA = [
   #2f5ab9,
   #395bb7,
   #435cb5,
@@ -362,7 +362,7 @@ twilightA = [
   #395bb7,
 ]
 
-twilightB = [
+var twilightB = [
   #2f5ab9,
   #315ab9,
   #355bb8,
@@ -395,7 +395,7 @@ twilightB = [
   #315ab9,
 ]
 
-autumnA = [
+var autumnA = [
   #c50903,
   #cb0f04,
   #d01506,
@@ -428,7 +428,7 @@ autumnA = [
   #cb0f04,
 ]
 
-autumnB = [
+var autumnB = [
   #c50903,
   #c60a03,
   #c90d04,
@@ -461,7 +461,7 @@ autumnB = [
   #c60a03,
 ]
 
-verdantA = [
+var verdantA = [
   #60df4b,
   #68e04a,
   #70e04a,
@@ -494,7 +494,7 @@ verdantA = [
   #68e04a,
 ]
 
-verdantB = [
+var verdantB = [
   #60df4b,
   #61df4b,
   #65df4b,
