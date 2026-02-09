@@ -1,7 +1,7 @@
 # Shiny++
 This module allows you to generate animated effects (such as the one the shiny item produces) and apply it to anything in the game.
 
-**Note:** Currently, this module is under development and may recieve updates that make previous code using it invalid. Use with caution, and be prepared to update your code if necessary. Backwards compatability will be ensured, but not at this stage.
+**Note:** Currently, this module is under development and may recieve updates that make previous code using it invalid. Use with caution, and be prepared to update your code if necessary. Backwards compatability will be ensured, but not at this stage. If you don't want to deal with this, create a personal copy of the code.
 
 ## How to Use
 1. Make a new instance using the `new` keyword, and save it to a variable.
