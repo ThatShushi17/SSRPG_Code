@@ -2,38 +2,21 @@
     ANCHOR User Facing
 :====================== */
 
-// -- Mandatory ----------------------- //
-// these you must set manually for the code
-// to work
+// - = Behavior = -
 
 var PositionCallback = null
 var UIPositionCallback = null
 
-
-
-// -- Configuration ------------------- //
-
-// these can be configured (carefully) to
-// change behavior
-
+var canMove = true
 var canPerform = true
-// completely pauses all logic
-// (apart from moving the canvases)
+var positionX = null
+var positionY = null
 
-var conditions = []
-// all conditions, remove or add at will
-// ├┬→ ShinyCanvas
-// │├─→ "pause_shiny"
-// │├─→ "pause_shade"
-// │├─→ "disable_shiny"
-// │├─→ "disable_shade"
-// │├─→ "playonce_shiny"
-// ┊└─→ "playonce_shiny"
-
-// pause stops the progression of the effect. does not reset the rogress, and is still visible.
-// disable is same as pause but also resets progress. after enabling the animation instantly plays
-// playonce allows the effect to play once before being disabled
-
+func ToggleCondition (condition)
+  ?conditions.Contains(condition)
+    Remove(condition, conditions)
+  :
+    conditions.Add(condition)
 
 
 // - = Visual = -
@@ -111,30 +94,6 @@ var shadeGreys = [
 
 
 
-/* ====================
-    ANCHOR Short Funcs
-:====================== */
-var Abs = math.Abs
-var Max = math.Max
-var Round = math.RoundToInt
-var Floor = math.FloorToInt
-var Ceil = math.CeilToInt
-
-var Size = string.Size
-var Split = string.Split
-var Sub = string.Sub
-var Equals = string.Equals
-
-// a proper one this time
-func Mod(n, m)
-  return ((n % m) + m) % m
-
-// why must i make this myself?
-func Remove(val, array)
-  array.RemoveAt(array.IndexOf(val))
-
-
-
 /* ==================
     ANCHOR Functions
 :==================== */
@@ -142,19 +101,44 @@ func Remove(val, array)
 // -- Main ---------------------------- //
 
 var canvii = null
+var bindingUI = null
+var conditions = []
 var MainPerform = null
+var EffectTileCallback = null
 
 func Main(mask)
+  ?positionX ! null | positionY ! null
+    ?positionX ! null
+      for canvas : canvii
+        canvas.x = positionX
+      positionX = null
+
+    ?positionY ! null
+      for canvas : canvii
+        canvas.y = positionY
+      positionY = null
+
+
+  ?canPerform
+    MainPerform(canvii, mask)
+
+
+  ?!canMove
+    return
+
+
+  ?PositionCallback ! null & UIPositionCallback = ToBindingUI
+    UIPositionCallback = null
+
+
   ?UIPositionCallback
     for canvas : canvii
       UIPositionCallback(canvas)
+
   :?PositionCallback
     for canvas : canvii
       canvas.x = PositionCallback()［0］
       canvas.y = PositionCallback()［1］
-
-  ?canPerform
-    MainPerform(canvii, mask)
 
 
 
@@ -163,14 +147,32 @@ func Main(mask)
 // dependencies
 // ├─→ 0: canvas
 // └─→ 1: colors
-func ApplyColor(x, y, t, dependencies)
+func ApplyColorFG(x, y, t, dependencies)
   var canvas = dependencies［0］
   var colors = dependencies［1］
   
-  canvas.SetFG(x, y, colors［t］) // TODO add to an array instead and calculate instead
+  canvas.SetFG(x, y, colors［t］)
 
-func WipePattern(size, mask, t, wipeData,
+// dependencies
+// ├─→ 0: canvas
+// └─→ 1: colors
+func ApplyColorBG(x, y, t, dependencies)
+  var canvas = dependencies［0］
+  var colors = dependencies［1］
+  
+  canvas.SetBG(x, y, colors［t］)
+
+// expected wipeData
+// ├─→ 0: count
+// ├─→ 1: width
+// ├─→ 2: shear
+// ├─→ 3: ticksPerMove
+// └─→ 4: EffectCallback()
+
+func WipePattern(size, mask, timer, wipeData,
 ^dependencies)
+  var t = math.Abs(timer)
+
   var canvasW = size［0］
   var canvasH = size［1］
 
@@ -184,7 +186,7 @@ func WipePattern(size, mask, t, wipeData,
   var initPhase = t % tpMove
 
   var phaseDel = shear * (canvasH - 1)
-  var vertWidth = wipeWidth + Abs(phaseDel) / tpMove
+  var vertWidth = wipeWidth + math.Abs(phaseDel) / tpMove
   var startX
   var endX
   ?shear < 0
@@ -197,16 +199,14 @@ func WipePattern(size, mask, t, wipeData,
   ?startX - elapsed = endX
     return true
 
-  // var maskLength = Size(mask)
-
   for y = 0 .. canvasH - 1
     // for the start of the wipe
     var p0 = initPhase - y * shear
-    var x0 = startX - elapsed - Floor((p0 * 1.0) / tpMove)
+    var x0 = startX - elapsed - math.FloorToInt((p0 * 1.0) / tpMove)
     
     // for the mask
     var i = y * canvasW + x0
-    var maskCond = Equals(mask, "1")
+    var maskCond = string.Equals(mask, "1")
 
     for x = 0 .. wipeWidth - 1
       var p = Mod(p0, tpMove)
@@ -217,7 +217,7 @@ func WipePattern(size, mask, t, wipeData,
         posCond = true
 
       ?!maskCond & posCond
-        maskCond = Equals(Sub(mask, i + x, 1), ＂1＂)
+        maskCond = string.Equals(string.Sub(mask, i + x, 1), ＂1＂)
 
       ?posCond & maskCond
         p += x * tpMove
@@ -228,21 +228,29 @@ func WipePattern(size, mask, t, wipeData,
 
 // -- Specific ------------------------ //
 
+func ToBindingUI(canvas)
+  canvas.x = bindingUI.x
+  canvas.y = bindingUI.y
+
+
 func InitShinyEffect(model)
   var x
   var y
   var w
   var h
   ?type(model) = ＂array＂
-    x = 0
-    y = 0
-    w = model［0］
-    h = model［1］
+    x = model［0］
+    y = model［1］
+    w = model［2］
+    h = model［3］
   :
     x = model.x
     y = model.y
     w = model.w
     h = model.h
+    UIPositionCallback = ToBindingUI
+    bindingUI = model
+
 
   var dCanvas = ui.AddCanvas()
   dCanvas.dock = ＂top_left＂
@@ -268,6 +276,11 @@ func InitShinyEffect(model)
 
   canvii = ［dCanvas, sCanvas］
   MainPerform = PerformShinyEffect
+  EffectTileCallback = ApplyColorFG
+
+func InitShinyEffectBG(model)
+  InitShinyEffect(model)
+  EffectTileCallback = ApplyColorBG
 
 func PerformShinyEffect(canvii, mask)
   var pauseShade = conditions.Contains("pause_shade")
@@ -280,6 +293,12 @@ func PerformShinyEffect(canvii, mask)
   var shadeCanvas = canvii［0］
   var shinyCanvas = canvii［1］
 
+  ?playonceShade & disableShade
+    Remove("disable_shade", conditions)
+
+  ?playonceShiny & disableShiny
+    Remove("disable_shiny", conditions)
+
   ?!pauseShade & !disableShade
     shadeCanvas.SetFG(#ffffff)
 
@@ -287,13 +306,13 @@ func PerformShinyEffect(canvii, mask)
       ?WipePattern(
       ^［shadeCanvas.w, shadeCanvas.h］,
       ^mask,
-      ^Abs(shadeTimer),
+      ^shadeTimer,
       ^[
         shadeGreys.Count(),
         shadeWidth,
         shadeShear,
         shadeGreys.Count() / shadeWidth,  // shadeTicksPerMove
-        ApplyColor
+        EffectTileCallback
       ],
       ^［shadeCanvas, shadeGreys］
       ^)
@@ -313,13 +332,13 @@ func PerformShinyEffect(canvii, mask)
       ?WipePattern(
       ^［shinyCanvas.w, shinyCanvas.h］,
       ^mask,
-      ^Abs(shinyTimer),
+      ^shinyTimer,
       ^[
         shinyGreys.Count(),
         shinyWidth,
         shinyShear,
         shinyGreys.Count() / shinyWidth,  // shinyTicksPerMove
-        ApplyColor
+        EffectTileCallback
       ],
       ^［shinyCanvas, shinyGreys］
       ^)
@@ -339,3 +358,17 @@ func PerformShinyEffect(canvii, mask)
   ?disableShiny
     shinyCanvas.SetFG(#000000)
     shinyTimer = 0
+
+
+/* =====================
+    ANCHOR Helper Funcs
+:======================= */
+// these are unrelated to the effects
+
+// a proper one this time
+func Mod(n, m)
+  return ((n % m) + m) % m
+
+// why must i make this myself?
+func Remove(val, array)
+  array.RemoveAt(array.IndexOf(val))
