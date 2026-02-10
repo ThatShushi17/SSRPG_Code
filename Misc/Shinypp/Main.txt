@@ -278,6 +278,9 @@ func InitShinyEffect(model)
   MainPerform = PerformShinyEffect
   EffectTileCallback = ApplyColorFG
 
+func InitShinyEffectFG(model)
+  InitShinyEffect(model)
+
 func InitShinyEffectBG(model)
   InitShinyEffect(model)
   EffectTileCallback = ApplyColorBG
