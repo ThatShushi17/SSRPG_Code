@@ -1,10 +1,10 @@
-//  *      •       ·     *    •     •     \\
-//     •     .-=-== ~  ~ ==-=-.  ·      * \\
-// ·        /      ` -- ´      \      •   \\
-//   • --==<  Enemy Health Bar  >==--   • \\
-//        * \      . -- .      /    ·     \\
-//    ·      `-=-== ~  ~ ==-=-´       *   \\
-// *     •       *      - ThatShush17   • \\
+//  *      •       ·      *    •     •     \\
+//     •     .-=-== ~   ~ ==-=-.  ·      * \\
+// ·        /      ` --- ´      \      •   \\
+//  • --==<   Enemy Health Bars  >==--   • \\
+//        * \      . --- .      /    ·     \\
+//    ·      `-=-== ~   ~ ==-=-´  *     *  \\
+// *     •       *       - ThatShush17   • \\
 
 // this allows the bars to customise their
 // width based on the hp on enemies. requires
