@@ -1,0 +1,738 @@
+//  *      •       ·     *    •     •     \\
+//     •     .-=-== ~  ~ ==-=-.  ·      * \\
+// ·        /      ` -- ´      \      •   \\
+//   • --==<  Enemy Health Bar  >==--   • \\
+//        * \      . -- .      /    ·     \\
+//    ·      `-=-== ~  ~ ==-=-´       *   \\
+// *     •       *      - ThatShush17   • \\
+
+// this allows the bars to customise their
+// width based on the hp on enemies. requires
+// atleast one run to have been performed in
+// the location at the star difficulty.
+// data is logged either way on loc.loop
+
+var allowCustomWidth = true
+
+
+// controls whether elite enemies can define
+// the maximum or minimum hp/armor values
+// present in a location
+
+var includeElites = true
+
+
+// call ResetData to reset the data of any
+// location you enter. only resets at the
+// beginning of the location (loc.begin)
+
+// -- Code ---------------------------- //
+
+var prevFoe = ""
+var prevArmor = 0
+
+var runMinArmor = 999999
+var runMaxArmor = 0
+
+var runMinHealth = 999999
+var runMaxHealth = 0
+
+var customMaxHealth = null
+var customMinHealth = null
+var customMaxArmor = null
+var customMinArmor = null
+
+var curLocId = null
+
+var barCanvas
+
+// -- Data ---------------------------- //
+
+var hpBarLength = 0
+var armorBarLength = 0
+
+var armorBarLengthPercent = 0.7
+
+var hpBarMinWidth = 10
+var hpBarMaxWidth = 30
+var armorBarMinWidth = math.RoundToInt(hpBarMinWidth * armorBarLengthPercent)
+var armorBarMaxWidth = math.RoundToInt(hpBarMaxWidth * armorBarLengthPercent)
+
+var fallbackBarLengths = [
+  hpBarMinWidth,
+  (hpBarMinWidth + hpBarMaxWidth) / 2,
+  hpBarMaxWidth
+]
+
+var barArmorColor = #bbb
+var barColorCount = 60
+var tileTimeDelta = 2
+
+var hpEmptyColor = #222
+var armorEmptyColor = #444
+
+var dysanColors = [
+  #e43380,
+  #e43370,
+  #e43360,
+  #e43350,
+  #e4343d,
+  #e43827,
+  #e45127,
+  #e46227,
+  #e47027,
+  #e47b27,
+  #e38627,
+  #e39027,
+  #e39927,
+  #e3a327,
+  #e3ad28,
+  #e3b728,
+  #e3c229,
+  #e3cf2a,
+  #e3de2c,
+  #d6e32c,
+  #c2e32d,
+  #ace32f,
+  #91e330,
+  #6be332,
+  #38e347,
+  #35e373,
+  #33e38d,
+  #31e3a0,
+  #2fe3b0,
+  #2ee3bd,
+  #2de3c9,
+  #2de3d4,
+  #2ce3de,
+  #2cdee3,
+  #2cd5e3,
+  #2bcce3,
+  #2bc4e3,
+  #2bbbe3,
+  #2bb3e3,
+  #2aaae4,
+  #2aa0e4,
+  #2995e4,
+  #2887e4,
+  #2575e4,
+  #1950e5,
+  #323ce5,
+  #483be5,
+  #5a3ae5,
+  #6a39e5,
+  #7a38e5,
+  #8a38e5,
+  #9b38e4,
+  #ad38e4,
+  #c038e4,
+  #d539e4,
+  #e43adc,
+  #e437c7,
+  #e436b3,
+  #e435a1,
+  #e43490,
+]
+var poisonColors = [
+  #2d8011,
+  #2e8312,
+  #308514,
+  #318815,
+  #328b16,
+  #348e18,
+  #359019,
+  #37931b,
+  #38961c,
+  #3a991e,
+  #3b9c1f,
+  #3d9f21,
+  #3ea223,
+  #40a524,
+  #42a826,
+  #43ab28,
+  #45ae2a,
+  #47b22c,
+  #49b52e,
+  #4ab830,
+  #4cbc32,
+  #4ebf34,
+  #50c236,
+  #52c638,
+  #54c93b,
+  #56cd3d,
+  #58d03f,
+  #5ad442,
+  #5cd844,
+  #5edb46,
+  #60df49,
+  #5edb46,
+  #5cd844,
+  #5ad442,
+  #58d03f,
+  #56cd3d,
+  #54c93b,
+  #52c638,
+  #50c236,
+  #4ebf34,
+  #4cbc32,
+  #4ab830,
+  #49b52e,
+  #47b22c,
+  #45ae2a,
+  #43ab28,
+  #42a826,
+  #40a524,
+  #3ea223,
+  #3d9f21,
+  #3b9c1f,
+  #3a991e,
+  #38961c,
+  #37931b,
+  #359019,
+  #348e18,
+  #328b16,
+  #318815,
+  #308514,
+  #2e8312,
+]
+var vigorColors = [
+  #ff496a,
+  #ff4669,
+  #fe4368,
+  #fe3f66,
+  #fd3c65,
+  #fd3964,
+  #fc3663,
+  #fc3362,
+  #fb3161,
+  #fa2e60,
+  #fa2b5e,
+  #f9285d,
+  #f8265c,
+  #f7235b,
+  #f7215a,
+  #f61e59,
+  #f51c58,
+  #f41a57,
+  #f31756,
+  #f21554,
+  #f11353,
+  #f01152,
+  #ef0f51,
+  #ee0d50,
+  #ec0b4f,
+  #eb094e,
+  #ea074d,
+  #e9054c,
+  #e8034b,
+  #e6024a,
+  #e50049,
+  #e6024a,
+  #e8034b,
+  #e9054c,
+  #ea074d,
+  #eb094e,
+  #ec0b4f,
+  #ee0d50,
+  #ef0f51,
+  #f01152,
+  #f11353,
+  #f21554,
+  #f31756,
+  #f41a57,
+  #f51c58,
+  #f61e59,
+  #f7215a,
+  #f7235b,
+  #f8265c,
+  #f9285d,
+  #fa2b5e,
+  #fa2e60,
+  #fb3161,
+  #fc3362,
+  #fc3663,
+  #fd3964,
+  #fd3c65,
+  #fe3f66,
+  #fe4368,
+  #ff4669,
+]
+var aetherColors = [
+  #ffc63b,
+  #f6c640,
+  #eec746,
+  #e6c74b,
+  #dec751,
+  #d6c757,
+  #cec75d,
+  #c6c762,
+  #bec768,
+  #b7c76e,
+  #afc774,
+  #a8c77b,
+  #a1c781,
+  #99c787,
+  #92c78e,
+  #8bc694,
+  #85c69b,
+  #7ec6a1,
+  #77c5a8,
+  #71c5af,
+  #6bc4b6,
+  #64c4bd,
+  #5ec3c4,
+  #58c2cb,
+  #52c2d2,
+  #4cc1d9,
+  #47c0e1,
+  #41c0e8,
+  #3cbff0,
+  #36bef7,
+  #31bdff,
+  #36bef7,
+  #3cbff0,
+  #41c0e8,
+  #47c0e1,
+  #4cc1d9,
+  #52c2d2,
+  #58c2cb,
+  #5ec3c4,
+  #64c4bd,
+  #6bc4b6,
+  #71c5af,
+  #77c5a8,
+  #7ec6a1,
+  #85c69b,
+  #8bc694,
+  #92c78e,
+  #99c787,
+  #a1c781,
+  #a8c77b,
+  #afc774,
+  #b7c76e,
+  #bec768,
+  #c6c762,
+  #cec75d,
+  #d6c757,
+  #dec751,
+  #e6c74b,
+  #eec746,
+  #f6c640,
+]
+var fireColors = [
+  #c50903,
+  #c80c04,
+  #cb0f04,
+  #ce1205,
+  #d01506,
+  #d31907,
+  #d61c08,
+  #d82009,
+  #db240a,
+  #dd280b,
+  #df2c0c,
+  #e2310d,
+  #e4350f,
+  #e63a10,
+  #e83f12,
+  #ea4413,
+  #ec4a15,
+  #ed4f16,
+  #ef5518,
+  #f15b1a,
+  #f2611b,
+  #f3671d,
+  #f46e1f,
+  #f67521,
+  #f77c24,
+  #f78326,
+  #f88a28,
+  #f9922a,
+  #f99a2d,
+  #faa22f,
+  #faaa32,
+  #faa22f,
+  #f99a2d,
+  #f9922a,
+  #f88a28,
+  #f78326,
+  #f77c24,
+  #f67521,
+  #f46e1f,
+  #f3671d,
+  #f2611b,
+  #f15b1a,
+  #ef5518,
+  #ed4f16,
+  #ec4a15,
+  #ea4413,
+  #e83f12,
+  #e63a10,
+  #e4350f,
+  #e2310d,
+  #df2c0c,
+  #dd280b,
+  #db240a,
+  #d82009,
+  #d61c08,
+  #d31907,
+  #d01506,
+  #ce1205,
+  #cb0f04,
+  #c80c04,
+]
+var iceColors = [
+  #00619f,
+  #0264a2,
+  #0467a4,
+  #0669a7,
+  #096caa,
+  #0b6fac,
+  #0e72af,
+  #1075b2,
+  #1378b5,
+  #167bb8,
+  #197eba,
+  #1c82bd,
+  #1f85c0,
+  #2388c3,
+  #268bc6,
+  #2a8fc9,
+  #2d92cc,
+  #3196cf,
+  #3599d2,
+  #399dd5,
+  #3da0d8,
+  #42a4db,
+  #46a8de,
+  #4babe1,
+  #4fafe5,
+  #54b3e8,
+  #59b7eb,
+  #5fbbee,
+  #64bff1,
+  #69c3f5,
+  #6fc7f8,
+  #69c3f5,
+  #64bff1,
+  #5fbbee,
+  #59b7eb,
+  #54b3e8,
+  #4fafe5,
+  #4babe1,
+  #46a8de,
+  #42a4db,
+  #3da0d8,
+  #399dd5,
+  #3599d2,
+  #3196cf,
+  #2d92cc,
+  #2a8fc9,
+  #268bc6,
+  #2388c3,
+  #1f85c0,
+  #1c82bd,
+  #197eba,
+  #167bb8,
+  #1378b5,
+  #1075b2,
+  #0e72af,
+  #0b6fac,
+  #096caa,
+  #0669a7,
+  #0467a4,
+  #0264a2,
+]
+var stoneColors = [
+  #4ee37c,
+  #51e07c,
+  #54dd7c,
+  #57da7b,
+  #5ad77b,
+  #5dd47b,
+  #60d17b,
+  #63ce7b,
+  #66cb7b,
+  #69c87a,
+  #6cc57a,
+  #6fc37a,
+  #71c07a,
+  #74bd7a,
+  #77ba7a,
+  #7ab779,
+  #7db579,
+  #7fb279,
+  #82af79,
+  #85ac79,
+  #88aa78,
+  #8aa778,
+  #8da478,
+  #90a278,
+  #929f78,
+  #959d78,
+  #979a77,
+  #9a9777,
+  #9d9577,
+  #9f9277,
+  #a29077,
+  #a48d76,
+  #a78b76,
+  #a98876,
+  #ab8676,
+  #ae8376,
+  #b08175,
+  #b37e75,
+  #b57c75,
+  #b77a75,
+  #ba7774,
+  #bc7574,
+  #be7374,
+  #c07074,
+  #c36e74,
+  #c56c73,
+  #c76973,
+  #c96773,
+  #cb6573,
+  #ce6372,
+  #d06072,
+  #d25e72,
+  #d45c72,
+  #d65a72,
+  #d85871,
+  #da5671,
+  #dc5471,
+  #de5171,
+  #e04f70,
+  #e24d70,
+]
+
+// -- Functions ----------------------- //
+
+func GenerateUi()
+  barCanvas = ui.AddCanvas()
+  barCanvas.dock = "bottom_right"
+  barCanvas.anchor = "bottom_right"
+  barCanvas.x = -1
+  barCanvas.y = 0
+  barCanvas.w = fallbackBarLengths[2]
+  barCanvas.h = 1
+  barCanvas.Set("▄")
+  barCanvas.SetFG(#000)
+  barCanvas.SetBG(#000)
+
+func GetColor(x)
+  var t = (x * tileTimeDelta + totaltime) % barColorCount
+  var color
+  
+  ?foe = "phase3"
+    color = dysanColors[t]
+  :?foe = "poison"
+    color = poisonColors[t]
+  :?foe = "vigor"
+    color = vigorColors[t]
+  :?foe = "aether"
+    color = aetherColors[t]
+  :?foe = "fire"
+    color = fireColors[t]
+  :?foe = "ice"
+    color = iceColors[t]
+  :
+    var T = math.RoundToInt(60 * foe.hp / (foe.maxhp * 1.0))
+    color = #ca3852
+
+  return color
+
+func SetCurLocId()
+  ?loc.name  = "rocky"
+    curLocId = "rocky"
+  :?loc.name = "canyon"
+    curLocId = "canyon"
+  :?loc.name = "caves"
+    curLocId = "caves"
+  :?loc.name = "mushroom"
+    curLocId = "mushroom"
+  :?loc.name = "halls"
+    curLocId = "halls"
+  :?loc.name = "boiling"
+    curLocId = "boiling"
+  :?loc.name = "icy"
+    curLocId = "icy"
+  :?loc.name = "temple"
+    curLocId = "temple"
+  :
+    curLocId = ""
+
+func UpdateRecords()
+  ?foe & (!encounter.isElite | !includeElites)
+    runMaxHealth = math.Max(runMaxHealth, foe.maxhp)
+    runMinHealth = math.Min(runMinHealth, foe.maxhp)
+
+    runMaxArmor = math.Max(runMaxArmor, foe.maxarmor)
+    ?foe.maxarmor > 0
+      runMinArmor = math.Min(runMinArmor, foe.maxarmor)
+
+func HandleStorage()
+  ?string.Equals(curLocId, "")
+    return
+
+  var locationCode = curLocId + (loc.stars + "")
+
+  ?loc.begin
+    customMaxHealth = storage.Get(locationCode + "hpMax", null)
+    customMinHealth = storage.Get(locationCode + "hpMin", null)
+    customMaxArmor = storage.Get(locationCode + "armorMax", null)
+    customMinArmor = storage.Get(locationCode + "armorMin", null)
+    return
+  
+  storage.Set(locationCode + "hpMax", math.Max(runMaxHealth, customMaxHealth))
+  storage.Set(locationCode + "hpMin", math.Min(runMinHealth, customMinHealth))
+  storage.Set(locationCode + "armorMax", math.Max(runMaxArmor, customMaxArmor))
+  storage.Set(locationCode + "armorMin", math.Min(runMinArmor, customMinArmor))
+
+  customMaxHealth = runMaxHealth
+  customMinHealth = runMinHealth
+  customMaxArmor = runMaxArmor
+  customMinArmor = runMinArmor
+
+
+func UpdateBarLength()
+  ?customMinHealth ! null & customMaxHealth ! null &
+  ^customMinArmor ! null & customMaxArmor ! null &
+  &allowCustomWidth
+    var _hp = math.Pow(foe.maxhp,0.4)
+    var _armor = math.Pow(foe.maxarmor,0.4)
+    var hpMax = math.Pow(customMaxHealth, 0.4)
+    var hpMin = math.Pow(customMinHealth, 0.4)
+    var armorMax = math.Pow(customMaxArmor, 0.4)
+    var armorMin = math.Pow(customMinArmor, 0.4)
+
+    var hpInterpolant = (_hp - hpMin) / (hpMax - hpMin * 1.0)
+    var armorInterpolant = (_armor - armorMin) / (armorMax - armorMin * 1.0)
+
+    var hpLerp = math.Lerp(hpBarMinWidth, hpBarMaxWidth, hpInterpolant)
+    var armorLerp = math.Lerp(armorBarMinWidth, armorBarMaxWidth, armorInterpolant)
+
+    hpBarLength = math.RoundToInt(hpLerp)
+    armorBarLength = math.RoundToInt(armorLerp)
+
+    return
+
+  :?foe = phase
+    hpBarLength = fallbackBarLengths[2]
+
+  :?foe = boss
+    hpBarLength = fallbackBarLengths[1]
+
+  :?foe
+    hpBarLength = fallbackBarLengths[0]
+
+  :
+    hpBarLength = 0
+
+  armorBarLength = math.RoundToInt(hpBarLength * armorBarLengthPercent)
+
+func UpdateBar()
+  barCanvas.SetFG(#000)
+
+  ?!foe | foe.hp <= 0
+    barCanvas.SetBG(#000)
+    return
+  
+  UpdateBarHp()
+
+  ?foe.armor ! prevArmor
+    barCanvas.SetBG(#000)
+    
+    ?foe.armor <= 0
+      return
+
+    UpdateBarArmor()
+
+func UpdateBarHp()
+  var hpPercent = foe.hp / (foe.maxhp * 1.0)
+  var hpTiles = hpPercent * hpBarLength
+
+  ?hpTiles > hpBarLength
+    hpTiles = hpBarLength
+
+  var hpFullTiles = math.FloorToInt(hpTiles)
+  var hpPartialTile = hpTiles - hpFullTiles
+
+  for i = 0 .. hpFullTiles - 1
+    var x = barCanvas.w - i - 1
+    barCanvas.SetFG(x, 0, GetColor(x))
+  
+  ?foe.hp = foe.maxhp
+    return
+
+  ?hpFullTiles < hpBarLength
+    for i = 0 .. hpBarLength - hpFullTiles - 1
+      var x = barCanvas.w - hpBarLength + i
+      barCanvas.SetFG(x, 0, hpEmptyColor)
+
+  var hpPartialTileX = barCanvas.w - hpFullTiles
+  var hpPartialTileColor = color.Lerp(hpEmptyColor, GetColor(hpPartialTileX), hpPartialTile)
+  barCanvas.SetFG(hpPartialTileX, 0, hpPartialTileColor)
+
+func UpdateBarArmor()
+  var armorPercent = foe.armor / (foe.maxarmor * 1.0)
+  var armorTiles = armorPercent * armorBarLength
+
+  ?armorTiles > armorBarLength
+    armorTiles = armorBarLength
+
+  var armorFullTiles = math.FloorToInt(armorTiles)
+  var armorPartialTile = armorTiles - armorFullTiles
+
+  for i = 0 .. armorFullTiles - 1
+    var x = barCanvas.w - i - 1
+    barCanvas.SetBG(x, 0, barArmorColor)
+
+  ?foe.armor = foe.maxarmor
+    return
+
+  ?armorFullTiles < armorBarLength
+    for i = 0 .. armorBarLength - armorFullTiles - 1
+      var x = barCanvas.w - armorBarLength + i
+      barCanvas.SetBG(x, 0, armorEmptyColor)
+
+  var armorPartialTileX = barCanvas.w - armorFullTiles
+  var armorPartialTileColor = color.Lerp(#000, barArmorColor, armorPartialTile)
+  barCanvas.SetBG(armorPartialTileX, 0, armorPartialTileColor)
+
+func ResetData()
+  ?loc.begin
+    ?curLocId = null
+      SetCurLocId()
+    
+    var locationCode = curLocId + (loc.stars + "")
+
+    storage.Delete(locationCode + "hpMax")
+    storage.Delete(locationCode + "hpMin")
+    storage.Delete(locationCode + "armorMax")
+    storage.Delete(locationCode + "armorMin")
+
+// -- Main ---------------------------- //
+
+func Main()
+  ?loc.begin | loc.loop
+    disable hud f
+
+    SetCurLocId()
+    HandleStorage()
+    GenerateUi()
+
+  ?prevFoe ! foe
+    UpdateBarLength()
+    UpdateRecords()
+
+  UpdateBar()
+
+  ?foe
+    var x = screen.w - string.Size(foe.name) - 2
+    >`@x@,@screen.h - 2@, @foe.name@
+
+  prevFoe = foe
+  prevArmor = foe.armor 
+
+Main()
