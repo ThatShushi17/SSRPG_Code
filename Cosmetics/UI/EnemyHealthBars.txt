@@ -598,7 +598,7 @@ func HandleStorage()
 func UpdateBarLength()
   ?customMinHealth ! null & customMaxHealth ! null &
   ^customMinArmor ! null & customMaxArmor ! null &
-  &allowCustomWidth
+  ^allowCustomWidth
     var _hp = math.Pow(foe.maxhp,0.4)
     var _armor = math.Pow(foe.maxarmor,0.4)
     var hpMax = math.Pow(customMaxHealth, 0.4)
