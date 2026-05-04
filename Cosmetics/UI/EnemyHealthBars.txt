@@ -6,6 +6,13 @@
 //    ·      `-=-== ~   ~ ==-=-´  *     *  \\
 // *     •       *       - ThatShush17   • \\
 
+// call ResetData to reset the data of any
+// location you enter. only resets at the
+// beginning of the location (loc.begin)
+
+
+// User-defined Tweaks
+
 // this allows the bars to customise their
 // width based on the hp on enemies. requires
 // atleast one run to have been performed in
@@ -18,59 +25,37 @@ var allowCustomWidth = true
 // controls whether elite enemies can define
 // the maximum or minimum hp/armor values
 // present in a location
+// you can also just exclusively ignore monarchs
 
 var includeElites = true
+var includeMonarchs = false
 
 
-// call ResetData to reset the data of any
-// location you enter. only resets at the
-// beginning of the location (loc.begin)
 
-// -- Code ---------------------------- //
+// you can change these if you dont like the
+// specific parameters for visuals i chose
 
-var prevFoe = ""
-var prevArmor = 0
-
-var runMinArmor = 999999
-var runMaxArmor = 0
-
-var runMinHealth = 999999
-var runMaxHealth = 0
-
-var customMaxHealth = null
-var customMinHealth = null
-var customMaxArmor = null
-var customMinArmor = null
-
-var curLocId = null
-
-var barCanvas
-
-// -- Data ---------------------------- //
-
-var hpBarLength = 0
-var armorBarLength = 0
-
-var armorBarLengthPercent = 0.7
-
+// the lowest and highest hp mobs have these
+// widths, and other mobs are interpolated
+// to be between these bounds
 var hpBarMinWidth = 10
 var hpBarMaxWidth = 30
-var armorBarMinWidth = math.RoundToInt(hpBarMinWidth * armorBarLengthPercent)
-var armorBarMaxWidth = math.RoundToInt(hpBarMaxWidth * armorBarLengthPercent)
 
-var fallbackBarLengths = [
-  hpBarMinWidth,
-  (hpBarMinWidth + hpBarMaxWidth) / 2,
-  hpBarMaxWidth
-]
+// decides max armorbar width from hpBarMaxWidth
+var armorBarLengthPercent = 0.7
 
+// color for a full tile of armor
 var barArmorColor = #bbb
-var barColorCount = 60
-var tileTimeDelta = 2
 
+// color of tiles which are depleted
 var hpEmptyColor = #222
 var armorEmptyColor = #444
 
+// this one's self explanatory
+var tileTimeDelta = 2
+
+// all color arrays need to have the same size
+var barColorCount = 60
 var dysanColors = [
   #e43380,
   #e43370,
@@ -443,6 +428,8 @@ var iceColors = [
   #0467a4,
   #0264a2,
 ]
+
+// this one is based on hp and isnt a gradient
 var stoneColors = [
   #4ee37c,
   #51e07c,
@@ -506,6 +493,40 @@ var stoneColors = [
   #e24d70,
 ]
 
+// -- Code ---------------------------- //
+
+var prevFoe = ""
+var prevArmor = 0
+
+var runMinArmor = 999999
+var runMaxArmor = 0
+
+var runMinHealth = 999999
+var runMaxHealth = 0
+
+var customMaxHealth = null
+var customMinHealth = null
+var customMaxArmor = null
+var customMinArmor = null
+
+var curLocId = null
+
+var barCanvas
+
+// -- Data ---------------------------- //
+
+var hpBarLength = 0
+var armorBarLength = 0
+
+var armorBarMinWidth = math.RoundToInt(hpBarMinWidth * armorBarLengthPercent)
+var armorBarMaxWidth = math.RoundToInt(hpBarMaxWidth * armorBarLengthPercent)
+
+var fallbackBarLengths = [
+  hpBarMinWidth,
+  (hpBarMinWidth + hpBarMaxWidth) / 2,
+  hpBarMaxWidth
+]
+
 // -- Functions ----------------------- //
 
 func GenerateUi()
@@ -538,7 +559,7 @@ func GetColor(x)
     color = iceColors[t]
   :
     var T = math.RoundToInt(60 * foe.hp / (foe.maxhp * 1.0))
-    color = #ca3852
+    color = stoneColors[T]
 
   return color
 
@@ -563,7 +584,8 @@ func SetCurLocId()
     curLocId = ""
 
 func UpdateRecords()
-  ?foe & (!encounter.isElite | !includeElites)
+  ?foe & (!encounter.isElite | !includeElites) &
+  ^(foe ! "monarch" | includeMonarchs)
     runMaxHealth = math.Max(runMaxHealth, foe.maxhp)
     runMinHealth = math.Min(runMinHealth, foe.maxhp)
 
