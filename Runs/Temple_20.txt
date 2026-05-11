@@ -20,15 +20,26 @@ var elementalShield = "ice A shield"
 var elementalCrossbow = "ice D crossbow"
 var elementalSwords = ["Frostmourne", "ice D sword"]
 
+var permaCrossbow = "crossbow"
+
 
 // \ ===========-
 //  \   Tactics
 //   \ ===========-
 // all men see the tactics whereby i conquer (as theyre foss)
 
+func AAC()
+  ?item.left.state = 3
+    equipL sword 1* +0
+  ?item.right.state = 3
+    ?totaltime % 2
+      equipR bash
+    :
+      equipR dash
+
 var moonCounter = 0
 var moonWalkReload = []
-var Moondial(pair)
+func Moondial(pair)
   ?moonCounter % 3 = 0
     right = pair[0]
     left = moon
@@ -55,11 +66,13 @@ func Begin()
   left = trisk
 
   brew bronze + stone
-  potId = "lucky"
+  potId = "lucky_crit"
 
 func Loop()
   right = comp
   left = trisk
+
+  isPermaBuilding = false
 
 func Cutscene()
   ?isPermaBuilding
@@ -72,6 +85,7 @@ func Cutscene()
   :
     left = quest
 
+var walkStutterstepItem = elementalCrossbow
 func Walk()
   ?foe.distance > 10
     left = trisk
@@ -102,8 +116,20 @@ func Walk()
 
     return true
   :
-    >`0,1,#ff694a,"stop trying to walk so close"
-    return false
+    ?item.GetCooldown("dash") <= 0 | item.GetCooldown("bash") <= 0 & canBash
+      ?item.GetCooldown("staff_stone") <= 0 & item.CanActivate() & foe.distance > 6
+        left = ""
+        right = acro
+        activateR = true
+        return
+
+    ?totaltime % 2 = 0
+      left = trisk
+      right = comp
+    
+    :
+      left = ""
+      right = walkStutterstepItem
 
 
 func Boss()
@@ -111,7 +137,14 @@ func Boss()
     Walk()
     return
   
-  Moondial(elementalSwords)
+  ?buffs.GetTime(potId) <= 100
+    isPermaBuilding = true
+
+  ?isPermaBuilding
+    right = mask
+    left = permaCrossbow
+  :
+    Moondial(elementalSwords)
 
 func Miniboss()
   ?foe.distance > 6
@@ -136,7 +169,8 @@ func Mobs()
     Walk()
     return
   
-  ?foe.distance > 20 & item.right.state = 3 |
+  ?item.right.state = 3 & (foe.distance > 20 | 
+  ^item.GetCooldown("dash") <= 0 | item.GetCooldown("bash") <= 0 & canBash) |
   ^math.Abs(foe.z - pos.z) > 1 & totaltime - lastFoeDeathTime <= 1 |
   ^foe.count = 0
     movedToMobs = false
@@ -165,35 +199,38 @@ func Main()
   ?loc.begin
     Begin()
 
-  :?loc.loop
+  ?loc.loop
     loopCount++
     Loop()
+    return
 
   // TODO add a Priority callback for hhammer and like
 
-  :?Conditional()
+  ?Conditional()
     return
 
-  :?ai.paused | !ai.enabled
+  ?ai.paused | !ai.enabled
     Cutscene()
+    return
 
-  :?foe = phase
+  ?foe = phase
     Boss()
+    return
 
-  :?foe = boss
+  ?foe = boss
     Miniboss()
+    return
 
-  :?encounter.isElite
-    var sybau
+  ?encounter.isElite
+    return
 
-  :
-    Mobs()
+  Mobs()
 
 
 // \ ==========-
 //  \   Engine
 //   \ ==========-
-// Your naught but a cog, young one
+// You're naught but a cog, young one
 // Dance like one
 
 func Engine()
@@ -202,6 +239,7 @@ func Engine()
 
   Main()
   InstantAbilities()
+  AAC()
   FinalEquips()
   FinalAbilities()
   UpdatePrevStats()
