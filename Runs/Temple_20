@@ -2,6 +2,12 @@
 
 var loopCount = 0
 
+var prevFoe = foe
+var prevFoeCount = foe.count
+var prevFoeDistance = foe.distance
+
+var lastFoeDeathTime = totaltime
+
 var right
 var left
 
@@ -13,6 +19,30 @@ var canBash = true
 var elementalShield = "ice A shield"
 var elementalCrossbow = "ice D crossbow"
 var elementalSwords = ["Frostmourne", "ice D sword"]
+
+
+// \ ===========-
+//  \   Tactics
+//   \ ===========-
+// all men see the tactics whereby i conquer (as theyre foss)
+
+var moonCounter = 0
+var moonWalkReload = []
+var Moondial(pair)
+  ?moonCounter % 3 = 0
+    right = pair[0]
+    left = moon
+    moonWalkReload.Insert(pair[0])
+  ?moonCounter % 3 = 1
+    right = pair[1]
+    left = moon
+    moonWalkReload.Insert(pair[1])
+  ?moonCounter % 3 = 2
+    right = pair[0]
+    left = pair[1]
+    moonWalkReload.Clear()
+
+  moonCounter++
 
 
 // \ =========-
@@ -60,6 +90,10 @@ func Walk()
       :?foe.distance <= 40
         right = elementalShield
       
+      :?moonWalkReload.Count() >= 1
+        right = moonWalkReload[0]
+        moonWalkReload.RemoveAt(0)
+      
       :?isPermaBuilding
         right = mask
       
@@ -68,30 +102,43 @@ func Walk()
 
     return true
   :
+    >`0,1,#ff694a,"stop trying to walk so close"
     return false
 
 
 func Boss()
-  return
+  ?foe.distance > 6
+    Walk()
+    return
+  
+  Moondial(elementalSwords)
 
 func Miniboss()
   ?foe.distance > 6
     canBash = true
     Walk()
     return
-  
-  ?foe.debuffs.GetTime("stun")
+
+  ?foe.debuffs.GetTime("stun") <= 5
+    right = grappl
+    left = moon
+    return
+
+  Moondial(elementalSwords)
 
 var movedToMobs = false
 func Mobs()
-  ?foe.distance > 16 & !movedToMobs
+  ?foe.distance > 6 & !movedToMobs
     canBash = false
     ?screen.i > 2
       canBash = true
+
     Walk()
     return
   
-  ?foe.distance > 20 & item.right.state >= 3
+  ?foe.distance > 20 & item.right.state = 3 |
+  ^math.Abs(foe.z - pos.z) > 1 & totaltime - lastFoeDeathTime <= 1 |
+  ^foe.count = 0
     movedToMobs = false
   :
     movedToMobs = true
@@ -157,7 +204,7 @@ func Engine()
   InstantAbilities()
   FinalEquips()
   FinalAbilities()
-
+  UpdatePrevStats()
 
 var instantActives = []
 func InstantAbilities()
@@ -197,6 +244,15 @@ func FinalAbilities()
   ?activateL
     activate L
     activateL = false
+
+
+func UpdatePrevStats()
+  prevFoe = foe
+  prevFoeCount = foe.count
+  prevFoeDistance = foe.distance
+
+  ?foe.state = 3
+    lastFoeDeathTime = totaltime
 
 
 Engine()
