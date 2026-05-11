@@ -1,0 +1,202 @@
+// Know yourself, know your enemy
+
+var loopCount = 0
+
+var right
+var left
+
+var potId
+
+var isPermaBuilding = false
+var canBash = true
+
+var elementalShield = "ice A shield"
+var elementalCrossbow = "ice D crossbow"
+var elementalSwords = ["Frostmourne", "ice D sword"]
+
+
+// \ =========-
+//  \   Packs
+//   \ =========-
+// reductionism is a necessary evil
+
+func Begin()
+  right = comp
+  left = trisk
+
+  brew bronze + stone
+  potId = "lucky"
+
+func Loop()
+  right = comp
+  left = trisk
+
+func Cutscene()
+  ?isPermaBuilding
+    right = mask
+  :
+    right = comp
+  
+  ?ai.walking
+    left = trisk
+  :
+    left = quest
+
+func Walk()
+  ?foe.distance > 10
+    left = trisk
+
+    ?foe.distance <= 16 & item.GetCooldown("bash") <= 0 & canBash
+      right = bash
+    :?foe.distance <= 16 & item.GetCooldown("dash") <= 0
+      right = dash
+    :
+      ?item.GetCooldown("quarterstaff") & item.CanActivate()
+        instantActives.Add("quarterstaff")
+      
+      ?pickup.distance < 18
+        right = star
+      
+      :?foe.distance <= 40
+        right = elementalShield
+      
+      :?isPermaBuilding
+        right = mask
+      
+      :
+        right = comp
+
+    return true
+  :
+    return false
+
+
+func Boss()
+  return
+
+func Miniboss()
+  ?foe.distance > 6
+    canBash = true
+    Walk()
+    return
+  
+  ?foe.debuffs.GetTime("stun")
+
+var movedToMobs = false
+func Mobs()
+  ?foe.distance > 16 & !movedToMobs
+    canBash = false
+    ?screen.i > 2
+      canBash = true
+    Walk()
+    return
+  
+  ?foe.distance > 20 & item.right.state >= 3
+    movedToMobs = false
+  :
+    movedToMobs = true
+  
+  left = ""
+  right = elementalCrossbow
+
+// \ ===========-
+//  \   Special
+//   \ ===========-
+// you are my special
+
+func Conditional()
+  ?(buffs.GetTime("infernal") - 1) % 60 = 0
+    right = towering
+    return true  // TODO make this less intrusive?
+
+// \ ========-
+//  \   Main
+//   \ ========-
+// The culmination of your run
+
+func Main()
+  ?loc.begin
+    Begin()
+
+  :?loc.loop
+    loopCount++
+    Loop()
+
+  // TODO add a Priority callback for hhammer and like
+
+  :?Conditional()
+    return
+
+  :?ai.paused | !ai.enabled
+    Cutscene()
+
+  :?foe = phase
+    Boss()
+
+  :?foe = boss
+    Miniboss()
+
+  :?encounter.isElite
+    var sybau
+
+  :
+    Mobs()
+
+
+// \ ==========-
+//  \   Engine
+//   \ ==========-
+// Your naught but a cog, young one
+// Dance like one
+
+func Engine()
+  right = ""
+  left = ""
+
+  Main()
+  InstantAbilities()
+  FinalEquips()
+  FinalAbilities()
+
+
+var instantActives = []
+func InstantAbilities()
+  var count = instantActives.Count()
+  ?count = 0
+    return
+  
+  for i = 0 .. count - 1
+    var item = instantActives[i]
+    ?Type(item) = "string"
+      equip @item@
+      activate R
+    :
+      var l = item[0]
+      equipR @item[1]@
+      activate R
+      ?l
+        equipL @l@
+        activate L
+  
+  instantActives.Clear()
+
+func FinalEquips()
+  ?!left
+    equip @right@
+  :
+    equipR @right@
+    equipL @left@
+
+var activateR = false
+var activateL = false
+func FinalAbilities()
+  ?activateR
+    activate R
+    activateR = false
+  
+  ?activateL
+    activate L
+    activateL = false
+
+
+Engine()
