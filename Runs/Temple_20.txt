@@ -15,6 +15,8 @@ var potId
 
 var isPermaBuilding = false
 var canBash = true
+var canDash
+canDash = item.GetCooldown("dash") <= 0 | item.GetCooldown("bash") <= 0 & canBash
 
 var elementalShield = "ice A shield"
 var elementalCrossbow = "ice D crossbow"
@@ -67,8 +69,21 @@ func CheatSnake()
       incomingSpit1 = totaltime + 25
 
   right = mask
-  left = permaCrossbow
+  ?foe.distance <= 10 & item.GetCooldown(mind) <= 0
+    left = mind
+  
+  :?incomingSpit1 > totaltime
+    ?incomingSpit1 - totaltime >= 6
+      left = permaCrossbow
+    
+    :
+      left = trisk
 
+  :
+    left = permaCrossbow
+
+  ?incomingSpit1 = totaltime & incomingSpit2 > incomingSpit1
+    incomingSpit1 = incomingSpit2
 
 // \ =========-
 //  \   Packs
@@ -130,13 +145,6 @@ func Walk()
 
     return true
   :
-//    ?item.GetCooldown("dash") <= 0 | item.GetCooldown("bash") <= 0 & canBash
-//      ?item.GetCooldown("staff_stone") <= 0 & item.CanActivate() & foe.distance > 6
-//        left = ""
-//        right = acro
-//        activateR = true
-//        return
-
     ?totaltime % 2 = 0
       left = trisk
       right = comp
@@ -178,14 +186,13 @@ var movedToMobs = false
 func Mobs()
   ?foe.distance > 6 & !movedToMobs
     canBash = false
-    ?screen.i > 2
+    ?screen.i > 1  // FIXME
       canBash = true
 
     Walk()
     return
   
-  ?item.right.state = 3 & (foe.distance > 20 | 
-  ^item.GetCooldown("dash") <= 0 | item.GetCooldown("bash") <= 0 & canBash) |
+  ?item.right.state = 3 & (foe.distance > 20 | canDash) |
   ^math.Abs(foe.z - pos.z) > 1 & totaltime - lastFoeDeathTime <= 1 |
   ^foe.count = 0
     movedToMobs = false
