@@ -43,11 +43,11 @@ func Moondial(pair)
   ?moonCounter % 3 = 0
     right = pair[0]
     left = moon
-    moonWalkReload.Insert(pair[0])
+    moonWalkReload.Insert(0, pair[0])
   ?moonCounter % 3 = 1
     right = pair[1]
     left = moon
-    moonWalkReload.Insert(pair[1])
+    moonWalkReload.Insert(0, pair[1])
   ?moonCounter % 3 = 2
     right = pair[0]
     left = pair[1]
@@ -116,12 +116,12 @@ func Walk()
 
     return true
   :
-    ?item.GetCooldown("dash") <= 0 | item.GetCooldown("bash") <= 0 & canBash
-      ?item.GetCooldown("staff_stone") <= 0 & item.CanActivate() & foe.distance > 6
-        left = ""
-        right = acro
-        activateR = true
-        return
+//    ?item.GetCooldown("dash") <= 0 | item.GetCooldown("bash") <= 0 & canBash
+//      ?item.GetCooldown("staff_stone") <= 0 & item.CanActivate() & foe.distance > 6
+//        left = ""
+//        right = acro
+//        activateR = true
+//        return
 
     ?totaltime % 2 = 0
       left = trisk
@@ -140,6 +140,8 @@ func Boss()
   ?buffs.GetTime(potId) <= 100
     isPermaBuilding = true
 
+  activate P
+
   ?isPermaBuilding
     right = mask
     left = permaCrossbow
@@ -153,8 +155,8 @@ func Miniboss()
     return
 
   ?foe.debuffs.GetTime("stun") <= 5
-    right = grappl
-    left = moon
+    right = moon
+    left = grappl
     return
 
   Moondial(elementalSwords)
