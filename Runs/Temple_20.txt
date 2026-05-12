@@ -40,10 +40,12 @@ func AAC()
 var moonCounter = 0
 var moonWalkReload = []
 func Moondial(pair)
+  // >`0,1,@pair[0]@
+
   ?moonCounter % 3 = 0
     right = pair[0]
     left = moon
-    moonWalkReload.Insert(0, pair[0])
+    moonWalkReload.Add(pair[0])
   ?moonCounter % 3 = 1
     right = pair[1]
     left = moon
@@ -54,6 +56,18 @@ func Moondial(pair)
     moonWalkReload.Clear()
 
   moonCounter++
+
+var incomingSpit1 = 0
+var incomingSpit2 = 0
+func CheatSnake()
+  ?foe.state = 31 | foe.state = 33 & foe.time = 0
+    ?incomingSpit1 > totaltime
+      incomingSpit2 = totaltime + 25
+    :
+      incomingSpit1 = totaltime + 25
+
+  right = mask
+  left = permaCrossbow
 
 
 // \ =========-
@@ -133,18 +147,17 @@ func Walk()
 
 
 func Boss()
-  ?foe.distance > 6
-    Walk()
-    return
-  
   ?buffs.GetTime(potId) <= 100
     isPermaBuilding = true
+
+  ?isPermaBuilding & foe.distance > 16 | !isPermaBuilding & foe.distance > 6
+    Walk()
+    return
 
   activate P
 
   ?isPermaBuilding
-    right = mask
-    left = permaCrossbow
+    CheatSnake()
   :
     Moondial(elementalSwords)
 
