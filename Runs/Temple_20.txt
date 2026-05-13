@@ -59,73 +59,36 @@ func Moondial(pair)
 
   moonCounter++
 
-/*
-var incomingSpit1 = 0
-var incomingSpit2 = 0
-var didMind = false
-var dodgeTime = 6
-func CheatSnake()
-  ?foe.state = 31 | foe.state = 33 & foe.time = 0
-    ?incomingSpit1 > totaltime
-      incomingSpit2 = totaltime + 25
-    :
-      incomingSpit1 = totaltime + 25
+var SpitList = []
+func DodgeSpits()
+  ?foe.state = 33 | foe.state = 31 & foe.time = 0
+    SpitList.Add(totaltime)
+
+  ?!SpitList.Count()
+    return false
+
+  ?totaltime > SpitList[0] + 24
+    SpitList.RemoveAt(0)
+    return false
+
+  ?totaltime <= SpitList[0] + 19
+    return false
 
   right = mask
-  ?foe.distance <= 10 & item.GetCooldown(mind) <= 0
-    left = mind
-    ?incomingSpit1 < totaltime + 25
-      didMind = true
+  ?foe.distance > 10
+    left = trisk
 
-  :?incomingSpit1 > totaltime
-    dodgeTime = 6
-    ?didMind
-      dodgeTime += -6
-      didMind = false
-
-    ?incomingSpit1 - totaltime >= dodgeTime
-      left = permaCrossbow
-
-    :
-      left = trisk
-
-  :
-    left = permaCrossbow
-
-  ?incomingSpit1 = totaltime & incomingSpit2 > incomingSpit1
-    incomingSpit1 = incomingSpit2
-*/
-
-var incomingSpit1 = 0
-var incomingSpit2 = 0
-func CheatSnake()
-  ?foe.state = 31 | foe.state = 33 & foe.time = 0
-    ?incomingSpit1 > totaltime
-      incomingSpit2 = totaltime + 25
-    :
-      incomingSpit1 = totaltime + 25
-
-  right = mask
-
-  ?foe.distance <= 10 & item.GetCooldown(mind) <= 0 & (incomingSpit1 = totaltime + 25 | incomingSpit2 = totaltime + 25)
+  :?item.GetCooldown("mind") <= 0
     left = mind
 
-  :?incomingSpit1 > totaltime
-    ?incomingSpit1 - totaltime >= 6
-      left = permaCrossbow
-    :
-      left = trisk
-      ?foe.distance <= 10 & foe.distance > 6
-        right = "sword 1* +0"
-
-  :?foe.distance <= 22
-    left = permaCrossbow
+  :?totaltime - SpitList[0] % 2 = 0    // tt - sl[0] - 20 reduced
+    left = trisk
+    right = hatchet
 
   :
-    left = quest
+    right = shovel
 
-  ?incomingSpit1 = totaltime & incomingSpit2 > incomingSpit1
-    incomingSpit1 = incomingSpit2
+  return true
 
 // \ =========-
 //  \   Packs
@@ -144,6 +107,7 @@ func Loop()
   left = trisk
 
   isPermaBuilding = false
+  SpitList.Clear()
 
 func Cutscene()
   ?isPermaBuilding
@@ -199,8 +163,29 @@ func Walk()
 func Boss()
   ?buffs.GetTime(potId) <= 100
     isPermaBuilding = true
+
+  ?item.potion ! empty
     activate P
 
+  ?isPermaBuilding
+    ?!DodgeSpits()
+      ?foe.distance <= 22
+        left = permaCrossbow
+        right = mask
+      :
+        left = quest
+        right = mask
+
+    return
+
+  ?foe.distance > 6
+    Walk()
+    return
+
+  Moondial(elementalSwords)
+
+
+/*
   ?isPermaBuilding
     CheatSnake()
     return
@@ -213,6 +198,7 @@ func Boss()
     activate P
 
   Moondial(elementalSwords)
+*/
 
 func Miniboss()
   ?foe.distance > 6
@@ -361,3 +347,8 @@ func UpdatePrevStats()
 
 
 Engine()
+
+>`0,1,dist: @foe.distance@
+>`0,2,mind: @item.GetCooldown("mind")@
+>`0,3,move: @player.moveX@
+>`0,4,buff: @buffs.GetTime(potId)@
