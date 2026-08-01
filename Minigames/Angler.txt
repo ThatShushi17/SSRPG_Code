@@ -1,0 +1,493 @@
+// one annoying thing ive had to do is
+// approximate objects as lists :sad:
+//
+// TODO:
+// - create the animation after finishing a quest
+// - 
+//
+//
+//
+//
+//
+
+/* ==================
+    ANCHOR Constants
+ ==================== */
+// for all time, always
+
+/* ================
+    ANCHOR Helpers
+ ================== */
+// the ones you never meet
+//region
+
+var prevFoeCount = 0
+
+var Floor = math.FloorToInt
+var Ceil = math.CeilToInt
+var Round = math.RoundToInt
+var Min = math.Min
+var Log = math.Log
+var Lerp = math.Lerp
+
+var Split = string.Split
+var Size = string.Size
+var Sub = string.Sub
+
+func Reduplicate(str, int)
+    ?int = 0
+        return ""
+    ?int = 1
+        return str
+    
+    var temp = ""
+    for i = 0..int-1
+        temp += str
+    
+    return temp
+
+func RemoveFromArr(arr, toBeDel)
+    var tBDC = toBeDel.Count() - 1
+
+    ?tBDC = 0
+        arr.RemoveAt(toBeDel[0])
+    :?tBDC > 0
+        for i = tBDC .. 0
+            arr.RemoveAt(toBeDel[i])
+
+// the goat from across languages
+func GetInstanceFromID(id, instances)
+    for instance : instances
+        ?instance[0] = id
+            return instance
+
+// so many parameters!!!
+func InitUI(elem, dock, anchor, w, h, x, y)
+    elem.dock = dock
+    elem.anchor = anchor
+    elem.w = w
+    elem.h = h
+    elem.x = x
+    elem.y = y
+
+// for when you wanna draw
+func SetCanvasSprite(canvas, asciiart)
+    var lines = Split(asciiart, "\n")
+
+    for y = 0 .. lines.Count() - 1
+        var line = lines[y]
+        for x = 0 .. Size(line) - 1
+            var char = Sub(line, x, 1)
+                ?char ! "#"
+                    canvas.Set(x,y,char)
+
+//endregion
+
+/* ================
+    ANCHOR Objects
+ ================== */
+// using imports is for chuds
+//region
+
+var QUEST_ID = 0
+var QUEST_GOAL = 1
+var QUEST_DESC = 2
+func CreateQuestObject(id, goal, desc)
+    return [
+        id,
+        goal,
+        desc
+    ]
+
+func PushLerp(elem, lerp_delta, endPos, fractPos, startT)
+    lerpArray.Add([
+        elem,
+        lerp_delta,
+        [endPos[0], endPos[1]],
+        [fractPos[0], fractPos[1]],
+        startT
+    ])
+
+func PushFade(canvas, greys, startT)
+    fadeArray.Add([
+        canvas,
+        greys,
+        startT
+    ])
+
+
+//endregion
+
+/* ================
+    ANCHOR Storage
+ ================== */
+// data fractured across space and time
+//region
+
+var S_KEYS = [
+    "CURR_QUEST_ID",
+    "CURR_QUEST_PROGRESSION"
+]
+
+var currQuestID = storage.Get(S_KEYS[0], 99900)
+var currQuestProg = storage.Get(S_KEYS[1], 0)
+
+?!storage.Has(S_KEYS[0])
+    storage.Set(S_KEYS[0], currQuestID)
+    storage.Set(S_KEYS[1], currQuestProg)
+
+//endregion
+
+/* =============
+    ANCHOR Data
+ =============== */
+// measure that man!
+//region
+
+var default_greys = [
+    #a9a9a9,
+    #808080,
+    #565656,
+    #2e2e2e
+]
+
+var linear_greys_10 = [
+    #000000,
+    #1c1c1c,
+    #383838,
+    #555555,
+    #717171,
+    #8d8d8d,
+    #aaaaaa,
+    #c6c6c6,
+    #e2e2e2,
+    #ffffff,
+]
+
+var sin_greys_10 = [
+    #000000,
+    #2c2c2c,
+    #575757,
+    #7f7f7f,
+    #a3a3a3,
+    #c3c3c3,
+    #dcdcdc,
+    #efefef,
+    #fbfbfb,
+    #ffffff,
+]
+
+var sin_greys_15 = [
+    #000000,
+    #1c1c1c,
+    #383838,
+    #545454,
+    #6e6e6e,
+    #878787,
+    #9e9e9e,
+    #b4b4b4,
+    #c7c7c7,
+    #d7d7d7,
+    #e5e5e5,
+    #f0f0f0,
+    #f8f8f8,
+    #fdfdfd,
+    #ffffff,
+]
+
+var QUEST_DATA = [
+    CreateQuestObject(99900, 100, "Defeat Foes")
+]
+
+var currQuest = GetInstanceFromID(currQuestID, QUEST_DATA)
+
+//endregion
+
+/* ===============
+    ANCHOR Quests
+ ================= */
+// the specificity
+//region
+
+?currQuestProg < currQuest[QUEST_GOAL] & currQuestProg >= 0
+    ?currQuestID = 99900 & prevFoeCount > foe.GetCount(140)
+        currQuestProg += prevFoeCount - foe.GetCount(140)
+        storage.Incr(S_KEYS[1], prevFoeCount - foe.GetCount(140))
+
+//endregion
+
+/* ==============
+    ANCHOR Logic
+ ================ */
+// the generality
+//region
+
+// -==| For Data |==-
+
+?currQuestProg >= currQuest[QUEST_GOAL]
+    currQuestProg = -1
+    storage.Set(S_KEYS[1], -1)
+
+    // set prog to -1, then play an anim
+
+// -==| For UI |==-
+
+var lerpArray = []
+func LerpComps ()
+    ?lerpArray.Count() = 0
+        return
+
+    var toBeDel = []
+    for compData : lerpArray
+        var elem = compData[0]
+        var lerp_delta = compData[1]
+        var endX = compData[2][0]
+        var endY = compData[2][1]
+        var currX = compData[3][0]
+        var currY = compData[3][1]
+        var startT = compData[4]
+
+        ?totaltime >= startT
+            var newX = Lerp(currX, endX, lerp_delta)
+            var newY = Lerp(currY, endY, lerp_delta)
+            
+            ?newX - currX > 0
+                elem.x = Ceil(newX)
+            :?newX - currX < 0
+                elem.x = Floor(newX)
+            
+            ?newY - currY > 0
+                elem.y = Ceil(newY)
+            :?newY - currY < 0
+                elem.y = Floor(newY)
+            
+            compData[3][0] = newX
+            compData[3][1] = newY
+            
+            ?elem.x = endX & elem.y = endY
+                toBeDel.Add(lerpArray.IndexOf(compData))
+    
+    RemoveFromArr(lerpArray, toBeDel)
+
+var fadeArray = []
+func FadeCanvii()
+    ?fadeArray.Count() = 0
+        return
+
+    var toBeDel = []
+    for compData : fadeArray
+        var canvas = compData[0]
+        var greys = compData[1]
+        var startT = compData[2]
+        var delT = totaltime - startT
+
+        ?delT >= 0
+            canvas.SetFG(greys[delT])
+
+            ?delT >= greys.Count() - 1
+                toBeDel.Add(fadeArray.IndexOf(compData))
+
+    RemoveFromArr(fadeArray, toBeDel)
+
+// -==| For Buttons |==-
+
+func ViewQuest(btn)
+    var pan = btn.parent
+    ?lerpArray.Count() ! 0 // STUB temp solution
+        return
+
+    ?btn.text = ">"
+        btn.text = "<"
+        PushLerp(pan, 0.2, [0, pan.y], [pan.x, pan.y], totaltime)
+
+    :?btn.text = "<"
+        btn.text = ">"
+        PushLerp(pan, 0.2, [-pan.w, pan.y], [pan.x, pan.y], totaltime)
+
+//endregion
+
+/* ==============
+    ANCHOR Render
+ ================ */
+// rend 'er? i hardly know 'er!
+//region
+
+func RenderDisplay(disp, curr, goal)
+    var goalLen = Size(goal + "")
+    var currLen = Size(curr + "")
+    // var delLen = goalLen - currLen
+    var message = " / " + (goal + "")
+
+    for i = 0 .. currLen - 1
+        var char = Sub(curr + "", i, 1)
+        disp.Set(i, 0, char)
+
+    for i = 0 .. Size(message) - 1
+        var char = Sub(message + "", i, 1)
+        disp.Set(i + goalLen, 0, char)
+
+func RenderProgBar(bar, curr, goal)
+    var prog = curr / (goal * 1.0)
+    var progUnits = prog * bar.w
+    var intPart = Floor(progUnits)
+    var fractPart = Floor((progUnits-intPart)*10)
+
+    ?intPart ! 0
+        for i = 1 .. Min(intPart, bar.w)
+            bar.SetFG(i - 1, 0, #fff)
+    ?intPart < bar.w
+        bar.SetFG(intPart, 0, linear_greys_10[fractPart])
+
+func RenderProgress(disp, bar, curr, goal)
+    disp.Set("#")
+    for i = 0 .. bar.w - 1
+        bar.SetFG(i, 0, #000)
+
+    ?currQuestProg >= 0
+        RenderDisplay(disp, curr, goal)
+        RenderProgBar(bar, curr, goal)
+
+
+//endregion
+
+/* ==============
+    ANCHOR Ascii
+ ================ */
+// those who ass those who ski
+//region
+
+var generalButtonStyle = ui.AddStyle("
+^.-.
+^| |
+^'-'
+^")
+var questPanelStyle = ui.AddStyle("
+^  .
+^  │
+^  '
+^")
+var questViewButtonStyle = ui.AddStyle("
+^`-.
+^  │
+^,-'
+^")
+
+var main_title_ascii = ascii
+The##,##################
+####/|#########|########
+###/-|#._###_.#|#.-.#._#
+'-´##;#|#)#(_)#|#:-'#|#'
+#######'####_;####¯##'##
+asciiend
+
+var main_bg_ascii = ascii
+══──────┬───┬───┬───┬────────.
+###°¯¯¯¯'¯¯¯'¯¯¯'¯¯¯'¯¯¯¯¯¯¯¯|
+#############################|
+#############################|
+#############################|
+#############################|
+#############################|
+#############################|
+#############################|
+#############################|
+#############################|
+#############################|
+#############################|
+#############################|
+#############################ι
+asciiend
+
+//endregion
+
+/* ===========
+    ANCHOR UI
+ ============= */
+// *sightstone.png*
+//region
+
+// -==| Initialisation |==-
+
+?loc.begin | loc.loop
+    lerpArray.Clear()
+    fadeArray.Clear()
+
+    ?loc.name ! "waterfall"
+        var progBarLen = 15
+
+        var questPanel
+        var questText
+        var questProgDisplay
+        var questProgBar
+        var questViewButton
+
+        questPanel = ui.AddPanel()
+        InitUI(questPanel, "bottom_left", "bottom_left", progBarLen + 6, 5, -progBarLen - 6, -1)
+        questPanel.style = questPanelStyle
+        questPanel.color = default_greys[1]
+
+        questViewButton = ui.AddButton()
+        questPanel.Add(questViewButton)
+        InitUI(questViewButton, "center_right", "center_right", 3, 3, 3, 0)
+        questViewButton.style = questViewButtonStyle
+        questViewButton.text = ">"
+        questViewButton.tcolor = default_greys[0]
+        questViewButton.bcolor = default_greys[1]
+        questViewButton.SetPressed(ViewQuest)
+
+        questText = ui.AddText()
+        questPanel.Add(questText)
+        InitUI(questText, "top_left","top_left", questPanel.w-3,1,1,1)
+        questText.text = currQuest[QUEST_DESC]
+
+        questProgDisplay = ui.AddCanvas()
+        questPanel.Add(questProgDisplay)
+        InitUI(questProgDisplay, "top_left","top_left", questPanel.w-3,1,1,2)
+
+        questProgBar = ui.AddCanvas()
+        questPanel.Add(questProgBar)
+        InitUI(questProgBar, "top_left","top_left", progBarLen, 2, 1, 3)
+        questProgBar.SetFG(default_greys[1])
+        for i = 0 .. questProgBar.w - 1
+            questProgBar.Set(i, 0, "▄")
+            questProgBar.Set(i, 1, "¯")
+
+    :
+        var mainPanel
+        var mainTitleCanvas
+        var mainBgCanvas
+
+        mainPanel = ui.AddPanel()
+        InitUI(mainPanel, "center_right", "center_right", 32, 17, -3, 0) 
+
+        mainTitleCanvas = ui.AddCanvas()
+        mainPanel.Add(mainTitleCanvas)
+        InitUI(mainTitleCanvas, "top_left", "top_left", 24, 5, 4, -9)
+        SetCanvasSprite(mainTitleCanvas, main_title_ascii)
+        mainTitleCanvas.SetFG(#000)
+        
+        mainBgCanvas = ui.AddCanvas()
+        mainPanel.Add(mainBgCanvas)
+        InitUI(mainBgCanvas, "top_left", "top_left", 30, 15, 1, 1)
+        SetCanvasSprite(mainBgCanvas,main_bg_ascii)
+        mainBgCanvas.SetFG(#000)
+
+// -==| idk |==-
+
+?loc.name ! "waterfall"
+    RenderProgress(questProgDisplay, questProgBar, currQuestProg, currQuest[QUEST_GOAL])
+:
+    ?!ai.walking
+        // mTC
+        PushLerp(mainTitleCanvas, 0.15, [mainTitleCanvas.x, -4], [mainTitleCanvas.x, mainTitleCanvas.y], totaltime)
+        PushFade(mainTitleCanvas, sin_greys_15, totaltime)
+
+        // mBGC
+        PushFade(mainBgCanvas, sin_greys_15, totaltime)
+
+LerpComps()
+FadeCanvii()
+
+//endregion
+
+prevFoeCount = foe.GetCount(140)
