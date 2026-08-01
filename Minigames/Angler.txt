@@ -3,9 +3,9 @@
 //
 // TODO:
 // - create the animation after finishing a quest
-// - 
-//
-//
+// - var obj = import root/Objects  ->  x = obj.Lerp(...), obj.Fade(...)
+// - var anim = import root/Anims   ->  anims.Add(x)
+// - combine those two.
 //
 //
 //
