@@ -1,0 +1,4 @@
+>`0,1,"Hello from import_1.txt"
+
+// test recursive import
+import dev/tests/i1
