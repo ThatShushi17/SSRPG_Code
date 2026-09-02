@@ -1,4 +1,4 @@
->`0,1,"Hello from import_2.txt"
+>`0,3,"Hello from import_2.txt"
 
 var a = 0
 func foo()
