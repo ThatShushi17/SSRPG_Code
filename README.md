@@ -1,2 +1,2 @@
 # SSRPG_Code
-User code for the game Stone Story RPG. These scripts automise action in-game and can be used by any player.
+User code for the game Stone Story RPG. These scripts automate actions in-game and can be used by any player.
